@@ -1,1 +1,82 @@
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Typography */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f7f9fc;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #0077ff;
+    font-weight: 500;
+}
+
+.nav a:hover {
+    text-decoration: underline;
+}
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    margin-top: 60px;
+}
+
+.hero h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    color: #555;
+}
+
+/* Buttons */
+.btn-primary {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #0077ff;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #005fcc;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    margin-top: 80px;
+    padding: 20px 0;
+    color: #777;
+    font-size: 0.9rem;
+}
 
