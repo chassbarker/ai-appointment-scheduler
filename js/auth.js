@@ -32,12 +32,23 @@ if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         showAuthMessage("Logging in…");
-        const { email, password } = getCredentials();
+        const { fullName, email, password } = getCredentials();
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
         if (error) {
             showAuthMessage(`Login failed: ${error.message}`, true);
             return;
+        }
+
+        if (fullName) {
+            const { error: nameError } = await supabaseClient.auth.updateUser({
+                data: { full_name: fullName }
+            });
+
+            if (nameError) {
+                showAuthMessage(`Logged in, but your name could not be saved: ${nameError.message}`, true);
+                return;
+            }
         }
 
         window.location.replace("dashboard.html");
@@ -163,8 +174,10 @@ async function protectDashboard() {
         return null;
     }
 
-    const displayName = session.user.user_metadata?.full_name || session.user.email;
-    document.getElementById("welcomeMessage").textContent = `Welcome, ${displayName}!`;
+    const displayName = session.user.user_metadata?.full_name?.trim();
+    document.getElementById("welcomeMessage").textContent = displayName
+        ? `Welcome, ${displayName}!`
+        : "Welcome back!";
     return session;
 }
 
