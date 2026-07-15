@@ -11,12 +11,13 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <a class="skip-link" href="#mainContent">Skip to main content</a>
     <header class="header container">
         <a class="logo" href="index.html">AI Appointment Scheduler</a>
         <nav class="nav" aria-label="Main navigation"><a href="index.html">Home</a></nav>
     </header>
 
-    <main class="auth-main container">
+    <main id="mainContent" class="auth-main container" tabindex="-1">
         <section class="card auth-card" aria-labelledby="authHeading">
             <p class="eyebrow">Secure access</p>
             <h1 id="authHeading">Welcome back</h1>
@@ -25,22 +26,22 @@
             <form id="loginForm" class="form">
                 <div class="field">
                     <label for="fullName">Full name <span class="optional">(required for new accounts)</span></label>
-                    <input type="text" id="fullName" name="fullName" autocomplete="name" maxlength="100">
+                    <input type="text" id="fullName" name="fullName" autocomplete="name" maxlength="100" aria-describedby="authMessage">
                 </div>
                 <div class="field">
                     <label for="email">Email address</label>
-                    <input type="email" id="email" name="email" autocomplete="email" required>
+                    <input type="email" id="email" name="email" autocomplete="email" required aria-describedby="authMessage">
                 </div>
                 <div class="field">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" autocomplete="current-password" minlength="6" required>
+                    <input type="password" id="password" name="password" autocomplete="current-password" minlength="6" required aria-describedby="authMessage">
                 </div>
                 <div class="button-row">
                     <button type="submit" class="btn btn-primary">Log in</button>
                     <button type="button" id="signupButton" class="btn btn-secondary">Create account</button>
                 </div>
                 <button type="button" id="forgotPasswordButton" class="text-button">Forgot your password?</button>
-                <p id="authMessage" class="message" role="status" aria-live="polite"></p>
+                <p id="authMessage" class="message" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"></p>
             </form>
         </section>
     </main>
