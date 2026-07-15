@@ -22,6 +22,7 @@ dateInput.min = todayString();
 function showAppointmentMessage(message, isError = false) {
     appointmentMessage.textContent = message;
     appointmentMessage.classList.toggle("message-error", isError);
+    if (isError) appointmentMessage.focus();
 }
 
 function appointmentDate(appointment) {
@@ -157,9 +158,11 @@ appointmentForm.addEventListener("submit", async (event) => {
     const selectedTime = getSelectedTime();
     const selectedDate = dateInput.value;
     if (new Date(`${selectedDate}T${selectedTime}`) <= new Date()) {
+        dateInput.setAttribute("aria-invalid", "true");
         showAppointmentMessage("Choose a future date and time.", true);
         return;
     }
+    dateInput.removeAttribute("aria-invalid");
     const appointment = { user_id: session.user.id, name: document.getElementById("name").value.trim(), type: document.getElementById("type").value, date: selectedDate, time: selectedTime, notes: document.getElementById("notes").value.trim() || null };
     saveAppointmentBtn.disabled = true;
     showAppointmentMessage(id ? "Updating appointment..." : "Saving appointment...");
