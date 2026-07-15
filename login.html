@@ -3,45 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Log in to the AI Appointment Scheduler.">
+
     <title>Log In | AI Appointment Scheduler</title>
+
+    <meta
+        name="description"
+        content="Log in or create an AI Appointment Scheduler account."
+    >
+    <meta name="author" content="Chassidy Barker">
+    <meta name="theme-color" content="#2563eb">
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <header class="header container">
-        <a class="logo" href="index.html">AI Appointment Scheduler</a>
-        <nav class="nav" aria-label="Main navigation"><a href="index.html">Home</a></nav>
+        <a
+            class="logo"
+            href="index.html"
+            aria-label="AI Appointment Scheduler home"
+        >
+            AI Appointment Scheduler
+        </a>
+
+        <nav class="nav" aria-label="Main navigation">
+            <a href="index.html">Home</a>
+        </nav>
     </header>
 
     <main class="auth-main container">
-        <section class="card auth-card" aria-labelledby="authHeading">
+        <section
+            id="signup"
+            class="card auth-card"
+            aria-labelledby="authHeading"
+        >
             <p class="eyebrow">Secure access</p>
-            <h1 id="authHeading">Welcome back</h1>
-            <p>Log in to manage your appointments, or create a new account.</p>
+
+            <h1 id="authHeading">Welcome</h1>
+
+            <p>
+                Log in to manage your appointments or enter your information
+                to create an account.
+            </p>
 
             <form id="loginForm" class="form">
                 <div class="field">
-                    <label for="email">Email address</label>
-                    <input type="email" id="email" name="email" autocomplete="email" required>
+                    <label for="fullName">
+                        Full name
+                        <span class="optional">
+                            (required for new accounts)
+                        </span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        autocomplete="name"
+                        maxlength="100"
+                        placeholder="Your full name"
+                    >
                 </div>
+
+                <div class="field">
+                    <label for="email">Email address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        autocomplete="email"
+                        placeholder="you@example.com"
+                        required
+                    >
+                </div>
+
                 <div class="field">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" autocomplete="current-password" minlength="6" required>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autocomplete="current-password"
+                        minlength="6"
+                        placeholder="At least 6 characters"
+                        required
+                    >
                 </div>
+
                 <div class="button-row">
-                    <button type="submit" class="btn btn-primary">Log in</button>
-                    <button type="button" id="signupButton" class="btn btn-secondary">Create account</button>
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Log in
+                    </button>
+
+                    <button
+                        type="button"
+                        id="signupButton"
+                        class="btn btn-secondary"
+                    >
+                        Create account
+                    </button>
                 </div>
-                <p id="authMessage" class="message" role="status" aria-live="polite"></p>
+
+                <p
+                    id="authMessage"
+                    class="message"
+                    role="status"
+                    aria-live="polite"
+                ></p>
             </form>
         </section>
     </main>
 
-    <footer class="footer container"><p>&copy; 2026 Chassidy Barker. All rights reserved.</p></footer>
+    <footer class="footer container">
+        <p>&copy; 2026 Chassidy Barker. All rights reserved.</p>
+    </footer>
+
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Authentication -->
     <script src="js/auth.js"></script>
 </body>
 </html>
