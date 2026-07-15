@@ -1,6 +1,6 @@
 :root {
-    color-scheme: light;
-    --background: #f6f8fc;
+    color-scheme: only light;
+    --background: #f7f9fc;
     --surface: #ffffff;
     --text: #172033;
     --muted: #5d687c;
@@ -20,7 +20,8 @@ body {
     flex-direction: column;
     font-family: "Inter", system-ui, sans-serif;
     color: var(--text);
-    background: radial-gradient(circle at top left, #eaf1ff 0, transparent 34rem), var(--background);
+    background-color: var(--background);
+    background-image: none;
     line-height: 1.6;
     overflow-x: hidden;
 }
