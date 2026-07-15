@@ -1,97 +1,88 @@
 "use strict";
 
-// Supabase project configuration
-const SUPABASE_URL =
-    "https://epwuihimruaglftldkje.supabase.co";
+const SUPABASE_URL = "https://epwuihimruaglftldkje.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_vgakDijQh5xDx_Hgw3Gdcw_Ap2N_XW0";
 
-const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_vgakDijQh5xDx_Hgw3Gdcw_Ap2N_XW0";
-
-// GitHub Pages addresses
-const SITE_URL =
-    "https://chassbarker.github.io/ai-appointment-scheduler/";
-
-const LOGIN_URL = `${SITE_URL}login.html`;
-const DASHBOARD_URL = `${SITE_URL}dashboard.html`;
-
-// Verify that the Supabase browser library loaded
 if (!window.supabase) {
     throw new Error("The Supabase library failed to load.");
 }
 
-// Create the Supabase client
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-// Authentication-page elements
 const loginForm = document.getElementById("loginForm");
 const signupButton = document.getElementById("signupButton");
 const authMessage = document.getElementById("authMessage");
 
-/**
- * Display an authentication status or error message.
- */
 function showAuthMessage(message, isError = false) {
-    if (!authMessage) {
-        return;
-    }
-
+    if (!authMessage) return;
     authMessage.textContent = message;
     authMessage.classList.toggle("message-error", isError);
 }
 
-/**
- * Read values from the authentication form.
- */
 function getCredentials() {
-    const fullNameInput =
-        document.getElementById("fullName");
-
-    const emailInput =
-        document.getElementById("email");
-
-    const passwordInput =
-        document.getElementById("password");
-
     return {
-        fullName: fullNameInput
-            ? fullNameInput.value.trim()
-            : "",
-        email: emailInput.value.trim(),
-        password: passwordInput.value
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value
     };
 }
 
-/**
- * Log in an existing user.
- */
 if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
-
-        if (!loginForm.reportValidity()) {
-            return;
-        }
-
         showAuthMessage("Logging in…");
-
         const { email, password } = getCredentials();
-
-        const { error } =
-            await supabaseClient.auth.signInWithPassword({
-                email,
-                password
-            });
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
         if (error) {
-            showAuthMessage(
-                `Login failed: ${error.message}`,
-                true
-            );
-
+            showAuthMessage(`Login failed: ${error.message}`, true);
             return;
         }
 
-        window
+        window.location.replace("dashboard.html");
+    });
+}
+
+if (signupButton) {
+    signupButton.addEventListener("click", async () => {
+        if (!loginForm.reportValidity()) return;
+        showAuthMessage("Creating your account…");
+        const { email, password } = getCredentials();
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+
+        if (error) {
+            showAuthMessage(`Sign-up failed: ${error.message}`, true);
+            return;
+        }
+
+        if (data.session) {
+            window.location.replace("dashboard.html");
+        } else {
+            showAuthMessage("Account created. Check your email to confirm your address, then log in.");
+        }
+    });
+}
+
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+        logoutBtn.disabled = true;
+        await supabaseClient.auth.signOut();
+        window.location.replace("login.html");
+    });
+}
+
+async function protectDashboard() {
+    if (!document.getElementById("welcomeMessage")) return null;
+    const { data, error } = await supabaseClient.auth.getSession();
+    const session = data.session;
+
+    if (error || !session) {
+        window.location.replace("login.html");
+        return null;
+    }
+
+    document.getElementById("welcomeMessage").textContent = `Welcome, ${session.user.email}!`;
+    return session;
+}
+
+window.dashboardSessionPromise = protectDashboard();
