@@ -22,6 +22,7 @@ body {
     color: var(--text);
     background: radial-gradient(circle at top left, #eaf1ff 0, transparent 34rem), var(--background);
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 button, input, textarea { font: inherit; }
@@ -105,15 +106,34 @@ textarea { resize: vertical; }
 .is-completed { border-color: #b7dfc1; background: #fbfffc; }
 
 @media (max-width: 650px) {
-    .header { align-items: flex-start; padding-block: 1rem; }
-    .nav { gap: .75rem; }
+    .container { width: min(100% - 1.25rem, 1100px); }
+    .header { min-height: auto; flex-direction: column; align-items: stretch; padding-block: 1rem; }
+    .logo { font-size: 1rem; }
+    .nav { width: 100%; justify-content: flex-start; gap: 1rem; }
     .hero { padding-block: 3rem; }
+    .hero h1 { font-size: clamp(2rem, 11vw, 3rem); }
+    .hero .button-row { display: grid; grid-template-columns: 1fr; width: 100%; }
+    .hero .button-row .btn { width: 100%; }
+    .auth-main, .dashboard { padding-block: 2rem; }
+    .card { border-radius: .8rem; padding: 1.1rem; }
+    .auth-card .button-row { display: grid; grid-template-columns: 1fr; }
+    .auth-card .button-row .btn { width: 100%; }
     .appointment-form { grid-template-columns: 1fr; }
     .field-wide { grid-column: auto; }
     .appointment-item { flex-direction: column; }
     .time-selects { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .appointment-filters { grid-template-columns: 1fr; }
-    .appointment-actions { flex-wrap: wrap; }
+    .appointment-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+    .appointment-actions .btn { width: 100%; }
+    .section-heading { align-items: flex-start; }
+    input, select, textarea { min-width: 0; font-size: 16px; }
+}
+
+@media (max-width: 390px) {
+    .time-selects { grid-template-columns: 1fr; }
+    .appointment-actions { grid-template-columns: 1fr; }
+    .section-heading { flex-direction: column; }
+    .section-heading .btn { width: 100%; }
 }
 
 @media (max-height: 750px) {
