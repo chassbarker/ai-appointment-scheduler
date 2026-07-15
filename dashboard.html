@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <a class="skip-link" href="#mainContent">Skip to main content</a>
     <header class="header container">
         <a class="logo" href="index.html">AI Appointment Scheduler</a>
         <nav class="nav" aria-label="Main navigation">
@@ -19,7 +20,7 @@
         </nav>
     </header>
 
-    <main class="dashboard container">
+    <main id="mainContent" class="dashboard container" tabindex="-1">
         <section class="dashboard-heading">
             <p class="eyebrow">Your dashboard</p>
             <h1 id="welcomeMessage">Welcome!</h1>
@@ -32,11 +33,11 @@
                 <input type="hidden" id="appointmentId">
                 <div class="field">
                     <label for="name">Appointment name</label>
-                    <input id="name" name="name" type="text" maxlength="100" required>
+                    <input id="name" name="name" type="text" maxlength="100" required aria-describedby="appointmentMessage">
                 </div>
                 <div class="field">
                     <label for="type">Appointment type</label>
-                    <select id="type" name="type" required>
+                    <select id="type" name="type" required aria-describedby="appointmentMessage">
                         <option value="">Select a type</option>
                         <option value="Consultation">Consultation</option>
                         <option value="Follow-up">Follow-up</option>
@@ -51,13 +52,13 @@
                 </div>
                 <div class="field">
                     <label for="date">Date</label>
-                    <input id="date" name="date" type="date" required>
+                    <input id="date" name="date" type="date" required aria-describedby="appointmentMessage">
                 </div>
                 <div class="field">
                     <label id="timeLabel">Time</label>
                     <input id="time" name="time" type="hidden">
                     <div class="time-selects" role="group" aria-labelledby="timeLabel">
-                        <select id="timeHour" aria-label="Hour" required>
+                        <select id="timeHour" aria-label="Hour" required aria-describedby="appointmentMessage">
                             <option value="">Hour</option>
                             <option value="1">1</option><option value="2">2</option>
                             <option value="3">3</option><option value="4">4</option>
@@ -66,7 +67,7 @@
                             <option value="9">9</option><option value="10">10</option>
                             <option value="11">11</option><option value="12">12</option>
                         </select>
-                        <select id="timeMinute" aria-label="Minute" required>
+                        <select id="timeMinute" aria-label="Minute" required aria-describedby="appointmentMessage">
                             <option value="">Minute</option>
                             <option value="00">00</option><option value="05">05</option>
                             <option value="10">10</option><option value="15">15</option>
@@ -75,7 +76,7 @@
                             <option value="40">40</option><option value="45">45</option>
                             <option value="50">50</option><option value="55">55</option>
                         </select>
-                        <select id="timePeriod" aria-label="AM or PM" required>
+                        <select id="timePeriod" aria-label="AM or PM" required aria-describedby="appointmentMessage">
                             <option value="">AM/PM</option>
                             <option value="AM">AM</option>
                             <option value="PM">PM</option>
@@ -90,7 +91,7 @@
                     <button id="saveAppointmentBtn" type="submit" class="btn btn-primary">Save appointment</button>
                     <button id="cancelEditBtn" type="button" class="btn btn-secondary" hidden>Cancel edit</button>
                 </div>
-                <p id="appointmentMessage" class="message field-wide" role="status" aria-live="polite"></p>
+                <p id="appointmentMessage" class="message field-wide" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"></p>
             </form>
         </section>
 
