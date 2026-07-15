@@ -1,4 +1,4 @@
-use strict";
+"use strict";
 
 const SUPABASE_URL = "https://epwuihimruaglftldkje.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_vgakDijQh5xDx_Hgw3Gdcw_Ap2N_XW0";
