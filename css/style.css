@@ -88,6 +88,9 @@ textarea { resize: vertical; }
 .field-wide { grid-column: 1 / -1; }
 .appointments { padding-block: 1rem; }
 .section-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.appointment-filters { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin: 1rem 0 2rem; }
+.appointment-group { margin-top: 2rem; }
+.appointment-group > h3 { margin-bottom: .75rem; font-size: 1.15rem; }
 .appointment-list { display: grid; gap: 1rem; }
 .appointment-item { display: flex; justify-content: space-between; gap: 1.5rem; border: 1px solid var(--border); border-radius: .8rem; padding: 1.2rem; background: var(--surface); }
 .appointment-item h3 { margin-bottom: .25rem; }
@@ -96,6 +99,10 @@ textarea { resize: vertical; }
 .appointment-date, .appointment-notes, .empty-state { color: var(--muted); }
 .appointment-notes { margin-top: .65rem; white-space: pre-wrap; }
 .appointment-actions { display: flex; align-items: flex-start; gap: .5rem; }
+.appointment-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: .65rem; }
+.appointment-title-row h4 { margin: 0; }
+.status-badge { border-radius: 999px; padding: .18rem .55rem; color: #116329; background: #dcfce7; font-size: .75rem; font-weight: 700; }
+.is-completed { border-color: #b7dfc1; background: #fbfffc; }
 
 @media (max-width: 650px) {
     .header { align-items: flex-start; padding-block: 1rem; }
@@ -105,6 +112,8 @@ textarea { resize: vertical; }
     .field-wide { grid-column: auto; }
     .appointment-item { flex-direction: column; }
     .time-selects { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .appointment-filters { grid-template-columns: 1fr; }
+    .appointment-actions { flex-wrap: wrap; }
 }
 
 @media (max-height: 750px) {
