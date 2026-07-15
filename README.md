@@ -65,6 +65,10 @@ migration-add-status.sql   Completion-status update for existing projects
 - Test two accounts to confirm data isolation
 - Test keyboard navigation and mobile layout
 
+## Accessibility
+
+The interface is designed toward WCAG 2.2 Level AA and includes semantic landmarks, skip links, visible keyboard focus, associated form instructions, live status announcements, touch-friendly controls, reduced-motion support, forced-color support, and responsive reflow. This statement describes the project target and is not a guarantee of legal compliance. Automated testing should be supplemented with keyboard, zoom, contrast, and screen-reader testing.
+
 ## Future development
 
 The planned AI assistant will use a secure server-side function so no private AI API key is exposed in browser code.
