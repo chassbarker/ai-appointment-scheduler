@@ -34,11 +34,13 @@ A responsive appointment-management application built with Supabase Authenticati
 5. Replace the project URL and publishable key at the top of `js/auth.js` if using another Supabase project.
 6. Serve the folder with a web server or deploy it through GitHub Pages.
 
-The browser key is a Supabase publishable key, not a service-role secret. Never place a service-role key, database password, or private API key in frontend code.
+## Security
 
-## Database security
+This project uses a Supabase publishable key in the browser, as intended for public frontend applications. PostgreSQL Row Level Security policies restrict all appointment operations to the authenticated user's own records.
 
-The `appointments` table contains `id`, `user_id`, `name`, `type`, `date`, `time`, `notes`, `status`, and `created_at`. Row Level Security restricts every operation to rows whose `user_id` matches `auth.uid()`.
+The `appointments` table contains `id`, `user_id`, `name`, `type`, `date`, `time`, `notes`, `status`, and `created_at`. Every database operation is restricted to rows whose `user_id` matches `auth.uid()`.
+
+No service-role keys, database passwords, or private API keys are included in the frontend.
 
 ## Project structure
 
