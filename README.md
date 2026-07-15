@@ -1,42 +1,73 @@
 # AI Appointment Scheduler
 
-A browser-based appointment scheduler built with Supabase Authentication, PostgreSQL, HTML, CSS, and JavaScript.
+A responsive appointment-management application built with Supabase Authentication, PostgreSQL, HTML, CSS, and JavaScript.
+
+**Live demo:** https://chassbarker.github.io/ai-appointment-scheduler/
 
 ## Features
 
-- Email/password signup, login, and logout
-- Protected dashboard
-- Create, view, edit, and delete appointments
-- Chronological date and time sorting
+- Full-name account creation, email/password login, logout, and password recovery
+- Protected dashboard and personalized welcome message
+- Create, view, edit, complete, and delete appointments
+- Appointment type and 12-hour time selectors
+- Search and appointment-type filtering
+- Separate upcoming and past/completed sections
+- Past-date and past-time validation
 - User-specific access enforced with PostgreSQL Row Level Security
-- Responsive and accessible interface
-- Safe DOM rendering for user-entered appointment details
+- Responsive, keyboard-accessible interface
+- Safe DOM rendering for user-entered details
+- Custom GitHub Pages 404 page
+
+## Technology
+
+- Supabase Authentication and Data API
+- PostgreSQL with Row Level Security
+- HTML5, CSS3, and vanilla JavaScript
+- GitHub Pages
 
 ## Setup
 
 1. Create a Supabase project.
-2. Open **SQL Editor** in Supabase and run `supabase.sql`.
-3. In **Authentication > URL Configuration**, add your deployed site URL and any local URL you use.
-4. If you use a different Supabase project, replace `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` at the top of `js/auth.js`.
-5. Serve the folder through a local web server. For example, run `python -m http.server 8000` in the project folder and open `http://localhost:8000`.
+2. Run `supabase.sql` in the Supabase SQL Editor for a new database.
+3. If the table already exists without completion status, run `migration-add-status.sql` once.
+4. In **Authentication > URL Configuration**, add the deployed site and reset-password URLs.
+5. Replace the project URL and publishable key at the top of `js/auth.js` if using another Supabase project.
+6. Serve the folder with a web server or deploy it through GitHub Pages.
 
-The browser key is a Supabase publishable key, not a service-role secret. Database protection depends on the included RLS policies. Never place a service-role key in frontend code.
+The browser key is a Supabase publishable key, not a service-role secret. Never place a service-role key, database password, or private API key in frontend code.
+
+## Database security
+
+The `appointments` table contains `id`, `user_id`, `name`, `type`, `date`, `time`, `notes`, `status`, and `created_at`. Row Level Security restricts every operation to rows whose `user_id` matches `auth.uid()`.
 
 ## Project structure
 
 ```text
-css/style.css          Shared responsive styling
-js/auth.js             Supabase client and authentication
-js/appointments.js     Appointment CRUD and safe rendering
-index.html             Landing page
-login.html             Login and signup page
-dashboard.html         Protected appointment dashboard
-supabase.sql           Table, policies, and index
+css/style.css              Shared responsive styling
+js/auth.js                 Authentication and password recovery
+js/appointments.js         CRUD, filters, validation, and safe rendering
+index.html                 Landing page
+login.html                 Login and account creation
+reset-password.html        Password reset page
+dashboard.html             Protected appointment dashboard
+404.html                   GitHub Pages error page
+supabase.sql               Complete schema and RLS setup
+migration-add-status.sql   Completion-status update for existing projects
 ```
 
-## Database
+## Testing checklist
 
-The `appointments` table contains `id`, `user_id`, `name`, `type`, `date`, `time`, `notes`, and `created_at`. RLS restricts every operation to rows whose `user_id` matches `auth.uid()`.
+- Create and confirm an account
+- Log in, log out, and reset a password
+- Create, edit, complete, and delete an appointment
+- Verify search and type filters
+- Verify past appointments move to the history section
+- Test two accounts to confirm data isolation
+- Test keyboard navigation and mobile layout
+
+## Future development
+
+The planned AI assistant will use a secure server-side function so no private AI API key is exposed in browser code.
 
 ## License
 
