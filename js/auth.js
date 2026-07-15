@@ -1,100 +1,88 @@
-// ===============================
-// Supabase Client Initialization
-// ===============================
-const supabaseUrl = "https://epwuihimruaglftldkje.supabase.co";
-const supabaseKey = "sb_publishable_vgakDijQh5xDx_Hgw3Gdcw_Ap2N_XW0";
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+"use strict";
 
-// ===============================
-// Login Handler
-// ===============================
+const SUPABASE_URL = "https://epwuihimruaglftldkje.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_vgakDijQh5xDx_Hgw3Gdcw_Ap2N_XW0";
+
+if (!window.supabase) {
+    throw new Error("The Supabase library failed to load.");
+}
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
 const loginForm = document.getElementById("loginForm");
+const signupButton = document.getElementById("signupButton");
+const authMessage = document.getElementById("authMessage");
+
+function showAuthMessage(message, isError = false) {
+    if (!authMessage) return;
+    authMessage.textContent = message;
+    authMessage.classList.toggle("message-error", isError);
+}
+
+function getCredentials() {
+    return {
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value
+    };
+}
 
 if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
+    loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        showAuthMessage("Logging in…");
+        const { email, password } = getCredentials();
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
         if (error) {
-            alert("Login failed: " + error.message);
+            showAuthMessage(`Login failed: ${error.message}`, true);
             return;
         }
 
-        // Redirect to dashboard
-        window.location.href = "dashboard.html";
+        window.location.replace("dashboard.html");
     });
 }
 
-// ===============================
-// Sign Up Handler
-// ===============================
-const signupLink = document.getElementById("signupLink");
-
-if (signupLink) {
-    signupLink.addEventListener("click", async () => {
-        const email = prompt("Enter your email:");
-        const password = prompt("Create a password:");
-
-        if (!email || !password) {
-            alert("Email and password are required.");
-            return;
-        }
-
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password
-        });
+if (signupButton) {
+    signupButton.addEventListener("click", async () => {
+        if (!loginForm.reportValidity()) return;
+        showAuthMessage("Creating your account…");
+        const { email, password } = getCredentials();
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
 
         if (error) {
-            alert("Sign-up failed: " + error.message);
+            showAuthMessage(`Sign-up failed: ${error.message}`, true);
             return;
         }
 
-        alert("Account created! Please check your email to verify.");
+        if (data.session) {
+            window.location.replace("dashboard.html");
+        } else {
+            showAuthMessage("Account created. Check your email to confirm your address, then log in.");
+        }
     });
 }
 
-// ===============================
-// Logout Handler
-// ===============================
 const logoutBtn = document.getElementById("logoutBtn");
-
 if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
-        await supabase.auth.signOut();
-        window.location.href = "login.html";
+        logoutBtn.disabled = true;
+        await supabaseClient.auth.signOut();
+        window.location.replace("login.html");
     });
 }
 
-// ===============================
-// Dashboard Protection
-// ===============================
 async function protectDashboard() {
-    const { data: { session } } = await supabase.auth.getSession();
+    if (!document.getElementById("welcomeMessage")) return null;
+    const { data, error } = await supabaseClient.auth.getSession();
+    const session = data.session;
 
-    if (!session) {
-        // Not logged in → redirect
-        window.location.href = "login.html";
-        return;
+    if (error || !session) {
+        window.location.replace("login.html");
+        return null;
     }
 
-    // Logged in → personalize dashboard
-    const userEmail = session.user.email;
-    const welcomeMessage = document.getElementById("welcomeMessage");
-
-    if (welcomeMessage) {
-        welcomeMessage.textContent = `Welcome ${userEmail}!`;
-    }
+    document.getElementById("welcomeMessage").textContent = `Welcome, ${session.user.email}!`;
+    return session;
 }
 
-// Run protection only on dashboard.html
-if (window.location.pathname.includes("dashboard.html")) {
-    protectDashboard();
-}
+window.dashboardSessionPromise = protectDashboard();
