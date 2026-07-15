@@ -3,6 +3,7 @@
 A responsive appointment-management application built with Supabase Authentication, PostgreSQL, HTML, CSS, and JavaScript.
 
 **Live demo:** https://chassbarker.github.io/ai-appointment-scheduler/
+![AI Appointment Scheduler dashboard](images/appointment-scheduler-dashboard.png)
 
 ## Features
 
