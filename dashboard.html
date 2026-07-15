@@ -35,8 +35,19 @@
                     <input id="name" name="name" type="text" maxlength="100" required>
                 </div>
                 <div class="field">
-                    <label for="type">Type</label>
-                    <input id="type" name="type" type="text" maxlength="100" placeholder="Consultation" required>
+                    <label for="type">Appointment type</label>
+                    <select id="type" name="type" required>
+                        <option value="">Select a type</option>
+                        <option value="Consultation">Consultation</option>
+                        <option value="Follow-up">Follow-up</option>
+                        <option value="Medical">Medical</option>
+                        <option value="Dental">Dental</option>
+                        <option value="Vision">Vision</option>
+                        <option value="Therapy">Therapy</option>
+                        <option value="Personal">Personal</option>
+                        <option value="Business">Business</option>
+                        <option value="Other">Other</option>
+                    </select>
                 </div>
                 <div class="field">
                     <label for="date">Date</label>
