@@ -3,51 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — AI Appointment Scheduler</title>
+
+    <title>Login | AI Appointment Scheduler</title>
 
     <link rel="stylesheet" href="css/style.css">
 
-    <!-- Inter Font -->
+    <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet"
+    >
 </head>
 
 <body>
 
     <!-- Header -->
     <header class="header">
-        <h1 class="logo">Login</h1>
-        <nav class="nav">
+        <h1 class="logo">AI Appointment Scheduler</h1>
+
+        <nav class="nav" aria-label="Main Navigation">
             <a href="index.html">Home</a>
-            <a href="dashboard.html">Dashboard</a>
         </nav>
     </header>
 
-    <!-- Login Form -->
+    <!-- Main Content -->
     <main class="hero">
-        <h2>Welcome Back</h2>
-        <p>Log in to manage your appointments.</p>
+        <section class="login-container" aria-labelledby="loginHeading">
 
-        <form id="loginForm" class="form">
-            <label>Email</label>
-            <input type="email" id="email" placeholder="you@example.com" required>
+            <h2 id="loginHeading">Welcome Back</h2>
 
-            <label>Password</label>
-            <input type="password" id="password" placeholder="••••••••" required>
+            <p>
+                Sign in to manage your appointments securely.
+            </p>
 
-            <button type="submit" class="btn-primary">Login</button>
-        </form>
+            <form id="loginForm" class="form">
 
-        <p style="margin-top: 20px;">
-            Don’t have an account?
-            <a href="#" id="signupLink">Sign Up</a>
-        </p>
+                <label for="email">Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    autocomplete="email"
+                    required
+                >
+
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    minlength="6"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    Log In
+                </button>
+
+                <button
+                    type="button"
+                    id="signupButton"
+                    class="btn-secondary"
+                >
+                    Create Account
+                </button>
+
+                <p
+                    id="authMessage"
+                    class="auth-message"
+                    role="status"
+                    aria-live="polite"
+                ></p>
+
+            </form>
+
+        </section>
     </main>
-    
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js"></script>
-    
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Chassidy Barker | AI Appointment Scheduler</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/auth.js"></script>
+
 </body>
 </html>
-
