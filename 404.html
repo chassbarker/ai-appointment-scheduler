@@ -3,77 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Page not found">
-    <title>404 | AI Appointment Scheduler</title>
+    <meta name="description" content="The requested page could not be found.">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#2563eb">
+    <title>Page Not Found | AI Appointment Scheduler</title>
 
     <style>
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
         }
 
         body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 1.25rem;
+            color: #172033;
             background: #f4f7fb;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
             text-align: center;
-            padding: 20px;
         }
 
-        .container {
-            max-width: 600px;
+        main {
+            width: min(100%, 600px);
         }
 
         h1 {
-            font-size: 6rem;
+            margin: 0;
             color: #2563eb;
+            font-size: clamp(4.5rem, 15vw, 7rem);
+            line-height: 1;
         }
 
         h2 {
-            margin: 15px 0;
-            font-size: 2rem;
+            margin: 1rem 0;
+            font-size: clamp(1.6rem, 5vw, 2rem);
         }
 
         p {
-            margin-bottom: 30px;
-            color: #555;
+            margin: 0 0 1.8rem;
+            color: #555f70;
             line-height: 1.6;
         }
 
         a {
             display: inline-block;
-            padding: 14px 28px;
-            background: #2563eb;
-            color: white;
-            text-decoration: none;
+            min-width: 10.5rem;
             border-radius: 8px;
-            transition: background .3s;
+            padding: 0.85rem 1.75rem;
+            color: #fff;
+            background: #2563eb;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background-color 0.2s ease, transform 0.2s ease;
         }
 
         a:hover {
             background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        a:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, 0.35);
+            outline-offset: 3px;
         }
     </style>
 </head>
-
 <body>
-
-<div class="container">
-    <h1>404</h1>
-    <h2>Oops! Page Not Found</h2>
-
-    <p>
-        The page you're looking for doesn't exist or may have been moved.
-        Return to the homepage to continue exploring the AI Appointment Scheduler.
-    </p>
-
-    <a href="./index.html">Return Home</a>
-</div>
-
+    <main>
+        <h1>404</h1>
+        <h2>Oops! Page not found</h2>
+        <p>
+            The page you're looking for doesn't exist or may have been moved.
+            Return to the homepage to continue using the AI Appointment Scheduler.
+        </p>
+        <a href="https://chassbarker.github.io/ai-appointment-scheduler/">Return home</a>
+    </main>
 </body>
 </html>
