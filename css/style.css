@@ -47,9 +47,18 @@ h1 { max-width: 900px; margin-bottom: 1rem; font-size: clamp(2.3rem, 7vw, 4.6rem
 .btn { display: inline-flex; justify-content: center; align-items: center; border: 1px solid transparent; border-radius: .65rem; padding: .7rem 1rem; font-weight: 700; text-decoration: none; cursor: pointer; transition: .15s ease; }
 .btn:hover { transform: translateY(-1px); }
 .btn:disabled { cursor: wait; opacity: .65; transform: none; }
-.btn-primary { color: #fff; background: var(--primary); }
-.btn-primary:hover { background: var(--primary-dark); }
-.btn-secondary { color: var(--text); border-color: var(--border); background: var(--surface); }
+.btn-primary,
+.btn-secondary {
+    color: #fff;
+    border-color: var(--primary);
+    background: var(--primary);
+}
+.btn-primary:hover,
+.btn-secondary:hover {
+    color: #fff;
+    border-color: var(--primary-dark);
+    background: var(--primary-dark);
+}
 .btn-danger { color: var(--danger); border-color: #f0b9b4; background: #fff; }
 .btn-small { padding: .48rem .75rem; font-size: .88rem; }
 
