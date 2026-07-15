@@ -6,6 +6,7 @@ create table if not exists public.appointments (
     date date not null,
     time time not null,
     notes text check (notes is null or char_length(notes) <= 500),
+    status text not null default 'scheduled' check (status in ('scheduled', 'completed')),
     created_at timestamptz not null default now()
 );
 
