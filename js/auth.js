@@ -1,4 +1,4 @@
-"use strict";
+use strict";
 
 const SUPABASE_URL = "https://epwuihimruaglftldkje.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_vgakDijQh5xDx_Hgw3Gdcw_Ap2N_XW0";
@@ -21,6 +21,7 @@ function showAuthMessage(message, isError = false) {
 
 function getCredentials() {
     return {
+        fullName: document.getElementById("fullName").value.trim(),
         email: document.getElementById("email").value.trim(),
         password: document.getElementById("password").value
     };
@@ -46,8 +47,20 @@ if (signupButton) {
     signupButton.addEventListener("click", async () => {
         if (!loginForm.reportValidity()) return;
         showAuthMessage("Creating your account…");
-        const { email, password } = getCredentials();
-        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        const { fullName, email, password } = getCredentials();
+        if (!fullName) {
+            showAuthMessage("Enter your full name to create an account.", true);
+            document.getElementById("fullName").focus();
+            return;
+        }
+
+        const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { full_name: fullName }
+            }
+        });
 
         if (error) {
             showAuthMessage(`Sign-up failed: ${error.message}`, true);
@@ -81,7 +94,8 @@ async function protectDashboard() {
         return null;
     }
 
-    document.getElementById("welcomeMessage").textContent = `Welcome, ${session.user.email}!`;
+    const displayName = session.user.user_metadata?.full_name || session.user.email;
+    document.getElementById("welcomeMessage").textContent = `Welcome, ${displayName}!`;
     return session;
 }
 
