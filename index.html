@@ -3,33 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Securely create and manage appointments with Supabase.">
+
+    <title>AI Appointment Scheduler</title>
+
+    <meta
+        name="description"
+        content="Securely create and manage appointments with Supabase."
+    >
     <meta name="author" content="Chassidy Barker">
     <meta name="theme-color" content="#2563eb">
-    <title>AI Appointment Scheduler</title>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <header class="header container">
-        <a class="logo" href="index.html" aria-label="AI Appointment Scheduler home">AI Appointment Scheduler</a>
+        <a
+            class="logo"
+            href="index.html"
+            aria-label="AI Appointment Scheduler home"
+        >
+            AI Appointment Scheduler
+        </a>
+
         <nav class="nav" aria-label="Main navigation">
             <a href="index.html" aria-current="page">Home</a>
             <a href="login.html">Log in</a>
+
+            <a
+                class="btn btn-primary btn-small"
+                href="login.html#signup"
+            >
+                Create account
+            </a>
         </nav>
     </header>
 
     <main class="hero container">
         <section class="hero-content">
             <p class="eyebrow">Supabase portfolio project</p>
-            <h1>Manage appointments with a secure cloud-backed application.</h1>
-            <p>Create an account, schedule appointments, and manage upcoming visits using Supabase Authentication and PostgreSQL.</p>
-            <a class="btn btn-primary" href="login.html">Get started</a>
+
+            <h1>
+                Manage appointments with a secure cloud-backed application.
+            </h1>
+
+            <p>
+                Create an account, schedule appointments, and manage upcoming
+                visits using Supabase Authentication and PostgreSQL.
+            </p>
+
+            <nav class="button-row" aria-label="Primary actions">
+                <a
+                    class="btn btn-primary"
+                    href="login.html#signup"
+                >
+                    Create account
+                </a>
+
+                <a
+                    class="btn btn-secondary"
+                    href="login.html"
+                >
+                    Log in
+                </a>
+            </nav>
         </section>
     </main>
 
-    <footer class="footer container"><p>&copy; 2026 Chassidy Barker. All rights reserved.</p></footer>
+    <footer class="footer container">
+        <p>&copy; 2026 Chassidy Barker. All rights reserved.</p>
+    </footer>
 </body>
 </html>
