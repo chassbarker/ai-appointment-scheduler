@@ -11,6 +11,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
 const loginForm = document.getElementById("loginForm");
 const signupButton = document.getElementById("signupButton");
+const forgotPasswordButton = document.getElementById("forgotPasswordButton");
 const authMessage = document.getElementById("authMessage");
 
 function showAuthMessage(message, isError = false) {
@@ -73,6 +74,74 @@ if (signupButton) {
             showAuthMessage("Account created. Check your email to confirm your address, then log in.");
         }
     });
+}
+
+if (forgotPasswordButton) {
+    forgotPasswordButton.addEventListener("click", async () => {
+        const emailInput = document.getElementById("email");
+        const email = emailInput.value.trim();
+
+        if (!email || !emailInput.checkValidity()) {
+            showAuthMessage("Enter your email address first, then select Forgot your password.", true);
+            emailInput.focus();
+            return;
+        }
+
+        forgotPasswordButton.disabled = true;
+        showAuthMessage("Sending password-reset instructions…");
+        const redirectTo = new URL("reset-password.html", window.location.href).href;
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+        forgotPasswordButton.disabled = false;
+
+        if (error) {
+            showAuthMessage(`Unable to send reset email: ${error.message}`, true);
+            return;
+        }
+
+        showAuthMessage("Check your email for a password-reset link.");
+    });
+}
+
+const resetPasswordForm = document.getElementById("resetPasswordForm");
+const resetMessage = document.getElementById("resetMessage");
+
+if (resetPasswordForm) {
+    resetPasswordForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const password = document.getElementById("newPassword").value;
+        const confirmation = document.getElementById("confirmPassword").value;
+
+        if (password !== confirmation) {
+            resetMessage.textContent = "The passwords do not match.";
+            resetMessage.classList.add("message-error");
+            return;
+        }
+
+        resetMessage.textContent = "Updating your password…";
+        resetMessage.classList.remove("message-error");
+        const { data: { session } } = await supabaseClient.auth.getSession();
+
+        if (!session) {
+            resetMessage.textContent = "This reset link is invalid or has expired. Request a new link from the login page.";
+            resetMessage.classList.add("message-error");
+            return;
+        }
+
+        const { error } = await supabaseClient.auth.updateUser({ password });
+        if (error) {
+            resetMessage.textContent = `Unable to update password: ${error.message}`;
+            resetMessage.classList.add("message-error");
+            return;
+        }
+
+        resetMessage.textContent = "Password updated. Returning to login…";
+        await supabaseClient.auth.signOut();
+        window.setTimeout(() => window.location.replace("login.html?reset=success"), 1000);
+    });
+}
+
+if (authMessage && new URLSearchParams(window.location.search).get("reset") === "success") {
+    showAuthMessage("Your password was updated. Log in with your new password.");
 }
 
 const logoutBtn = document.getElementById("logoutBtn");
