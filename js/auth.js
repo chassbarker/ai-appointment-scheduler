@@ -18,6 +18,7 @@ function showAuthMessage(message, isError = false) {
     if (!authMessage) return;
     authMessage.textContent = message;
     authMessage.classList.toggle("message-error", isError);
+    if (isError) authMessage.focus();
 }
 
 function getCredentials() {
@@ -125,8 +126,14 @@ if (resetPasswordForm) {
         if (password !== confirmation) {
             resetMessage.textContent = "The passwords do not match.";
             resetMessage.classList.add("message-error");
+            document.getElementById("newPassword").setAttribute("aria-invalid", "true");
+            document.getElementById("confirmPassword").setAttribute("aria-invalid", "true");
+            resetMessage.focus();
             return;
         }
+
+        document.getElementById("newPassword").removeAttribute("aria-invalid");
+        document.getElementById("confirmPassword").removeAttribute("aria-invalid");
 
         resetMessage.textContent = "Updating your password…";
         resetMessage.classList.remove("message-error");
@@ -135,6 +142,7 @@ if (resetPasswordForm) {
         if (!session) {
             resetMessage.textContent = "This reset link is invalid or has expired. Request a new link from the login page.";
             resetMessage.classList.add("message-error");
+            resetMessage.focus();
             return;
         }
 
@@ -142,6 +150,7 @@ if (resetPasswordForm) {
         if (error) {
             resetMessage.textContent = `Unable to update password: ${error.message}`;
             resetMessage.classList.add("message-error");
+            resetMessage.focus();
             return;
         }
 
