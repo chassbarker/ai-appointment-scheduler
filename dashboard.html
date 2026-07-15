@@ -3,49 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — AI Appointment Scheduler</title>
-
-    <link rel="stylesheet" href="css/style.css">
-
-    <!-- Inter Font -->
+    <meta name="description" content="Create and manage your appointments.">
+    <title>Dashboard | AI Appointment Scheduler</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-
-    <!-- Header -->
-    <header class="header">
-        <h1 class="logo">Dashboard</h1>
-        <nav class="nav">
+    <header class="header container">
+        <a class="logo" href="index.html">AI Appointment Scheduler</a>
+        <nav class="nav" aria-label="Main navigation">
             <a href="index.html">Home</a>
-            <a href="#" id="logoutBtn">Logout</a>
+            <button type="button" id="logoutBtn" class="link-button">Log out</button>
         </nav>
     </header>
 
-    <!-- Main Dashboard -->
-    <main>
-        <section class="hero">
-            <h2 id="welcomeMessage">Welcome!</h2>
-            <p>Your upcoming appointments are listed below.</p>
+    <main class="dashboard container">
+        <section class="dashboard-heading">
+            <p class="eyebrow">Your dashboard</p>
+            <h1 id="welcomeMessage">Welcome!</h1>
+            <p>Create, update, and delete your upcoming appointments.</p>
         </section>
 
-        <!-- Appointment List -->
-        <section class="appointments">
-            <h3>Upcoming Appointments</h3>
-            <div id="appointmentsList">
-                <!-- Appointments will be injected here by appointments.js -->
-            </div>
+        <section class="card" aria-labelledby="formHeading">
+            <h2 id="formHeading">Schedule an appointment</h2>
+            <form id="appointmentForm" class="form appointment-form">
+                <input type="hidden" id="appointmentId">
+                <div class="field">
+                    <label for="name">Appointment name</label>
+                    <input id="name" name="name" type="text" maxlength="100" required>
+                </div>
+                <div class="field">
+                    <label for="type">Type</label>
+                    <input id="type" name="type" type="text" maxlength="100" placeholder="Consultation" required>
+                </div>
+                <div class="field">
+                    <label for="date">Date</label>
+                    <input id="date" name="date" type="date" required>
+                </div>
+                <div class="field">
+                    <label for="time">Time</label>
+                    <input id="time" name="time" type="time" required>
+                </div>
+                <div class="field field-wide">
+                    <label for="notes">Notes <span class="optional">(optional)</span></label>
+                    <textarea id="notes" name="notes" rows="3" maxlength="500"></textarea>
+                </div>
+                <div class="button-row field-wide">
+                    <button id="saveAppointmentBtn" type="submit" class="btn btn-primary">Save appointment</button>
+                    <button id="cancelEditBtn" type="button" class="btn btn-secondary" hidden>Cancel edit</button>
+                </div>
+                <p id="appointmentMessage" class="message field-wide" role="status" aria-live="polite"></p>
+            </form>
+        </section>
 
-            <a class="btn-primary" href="#" id="newAppointmentBtn">+ Schedule Appointment</a>
+        <section class="appointments" aria-labelledby="appointmentsHeading">
+            <div class="section-heading">
+                <h2 id="appointmentsHeading">Upcoming appointments</h2>
+                <button id="refreshBtn" type="button" class="btn btn-secondary btn-small">Refresh</button>
+            </div>
+            <div id="appointmentsList" class="appointment-list" aria-live="polite"><p>Loading appointments…</p></div>
         </section>
     </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js"></script>
-<script src="js/appointments.js"></script>
-<script src="js/app.js"></script>
+    <footer class="footer container"><p>&copy; 2026 Chassidy Barker. All rights reserved.</p></footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/appointments.js"></script>
 </body>
 </html>
-
