@@ -1,96 +1,156 @@
-// ===============================
-// Create Appointment
-// ===============================
-async function createAppointment(appointment) {
-    const { data, error } = await supabase
-        .from("appointments")
-        .insert([appointment]);
+"use strict";
 
-    if (error) {
-        alert("Error creating appointment: " + error.message);
-        return;
-    }
+const appointmentForm = document.getElementById("appointmentForm");
+const appointmentsList = document.getElementById("appointmentsList");
+const appointmentMessage = document.getElementById("appointmentMessage");
+const cancelEditBtn = document.getElementById("cancelEditBtn");
+const saveAppointmentBtn = document.getElementById("saveAppointmentBtn");
+let appointmentsCache = [];
 
-    alert("Appointment saved!");
-    loadAppointments();
+function showAppointmentMessage(message, isError = false) {
+    appointmentMessage.textContent = message;
+    appointmentMessage.classList.toggle("message-error", isError);
 }
 
-// ===============================
-// Load Appointments (Read)
-// ===============================
-async function loadAppointments() {
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session) {
-        window.location.href = "login.html";
-        return;
-    }
-
-    const userId = session.user.id;
-
-    const { data, error } = await supabase
-        .from("appointments")
-        .select("*")
-        .eq("user_id", userId)
-        .order("date", { ascending: true });
-
-    if (error) {
-        console.error("Error loading appointments:", error.message);
-        return;
-    }
-
-    displayAppointments(data);
+function formatAppointmentDate(date, time) {
+    const value = new Date(`${date}T${time}`);
+    if (Number.isNaN(value.getTime())) return `${date} at ${time}`;
+    return new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short"
+    }).format(value);
 }
 
-// ===============================
-// Display Appointments
-// ===============================
+function makeElement(tag, text, className) {
+    const element = document.createElement(tag);
+    if (text !== undefined) element.textContent = text;
+    if (className) element.className = className;
+    return element;
+}
+
 function displayAppointments(appointments) {
-    const list = document.getElementById("appointmentsList");
-    list.innerHTML = "";
+    appointmentsList.replaceChildren();
 
-    if (!appointments || appointments.length === 0) {
-        list.innerHTML = "<p>No appointments scheduled.</p>";
+    if (!appointments.length) {
+        appointmentsList.append(makeElement("p", "No appointments scheduled yet.", "empty-state"));
         return;
     }
 
-    appointments.forEach((appt) => {
-        const item = document.createElement("div");
-        item.classList.add("appointment-item");
+    appointments.forEach((appointment) => {
+        const article = makeElement("article", undefined, "appointment-item");
+        const content = makeElement("div", undefined, "appointment-content");
+        content.append(
+            makeElement("h3", appointment.name),
+            makeElement("p", appointment.type, "appointment-type"),
+            makeElement("p", formatAppointmentDate(appointment.date, appointment.time), "appointment-date")
+        );
+        if (appointment.notes) content.append(makeElement("p", appointment.notes, "appointment-notes"));
 
-        item.innerHTML = `
-            <h4>${appt.date} — ${appt.type}</h4>
-            <p>${appt.name}</p>
-            <p>${appt.notes || ""}</p>
-
-            <button onclick="deleteAppointment('${appt.id}')">Delete</button>
-        `;
-
-        list.appendChild(item);
+        const actions = makeElement("div", undefined, "appointment-actions");
+        const editButton = makeElement("button", "Edit", "btn btn-secondary btn-small");
+        editButton.type = "button";
+        editButton.addEventListener("click", () => beginEdit(appointment.id));
+        const deleteButton = makeElement("button", "Delete", "btn btn-danger btn-small");
+        deleteButton.type = "button";
+        deleteButton.addEventListener("click", () => deleteAppointment(appointment.id));
+        actions.append(editButton, deleteButton);
+        article.append(content, actions);
+        appointmentsList.append(article);
     });
 }
 
-// ===============================
-// Delete Appointment
-// ===============================
-async function deleteAppointment(id) {
-    const { error } = await supabase
+async function loadAppointments() {
+    const session = await window.dashboardSessionPromise;
+    if (!session) return;
+
+    appointmentsList.replaceChildren(makeElement("p", "Loading appointments…"));
+    const { data, error } = await supabaseClient
         .from("appointments")
-        .delete()
-        .eq("id", id);
+        .select("id, user_id, name, type, date, time, notes, created_at")
+        .eq("user_id", session.user.id)
+        .order("date", { ascending: true })
+        .order("time", { ascending: true });
 
     if (error) {
-        alert("Error deleting appointment: " + error.message);
+        appointmentsList.replaceChildren(makeElement("p", `Unable to load appointments: ${error.message}`, "message-error"));
         return;
     }
 
-    alert("Appointment deleted.");
-    loadAppointments();
+    appointmentsCache = data || [];
+    displayAppointments(appointmentsCache);
 }
 
-// ===============================
-// Load appointments automatically on dashboard
-// ===============================
-if (window.location.pathname.includes("dashboard.html")) {
-    loadAppointments();
+function resetAppointmentForm() {
+    appointmentForm.reset();
+    document.getElementById("appointmentId").value = "";
+    saveAppointmentBtn.textContent = "Save appointment";
+    cancelEditBtn.hidden = true;
 }
+
+function beginEdit(id) {
+    const appointment = appointmentsCache.find((item) => item.id === id);
+    if (!appointment) return;
+    document.getElementById("appointmentId").value = appointment.id;
+    document.getElementById("name").value = appointment.name;
+    document.getElementById("type").value = appointment.type;
+    document.getElementById("date").value = appointment.date;
+    document.getElementById("time").value = appointment.time.slice(0, 5);
+    document.getElementById("notes").value = appointment.notes || "";
+    saveAppointmentBtn.textContent = "Update appointment";
+    cancelEditBtn.hidden = false;
+    appointmentForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("name").focus();
+}
+
+appointmentForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const session = await window.dashboardSessionPromise;
+    if (!session) return;
+
+    const id = document.getElementById("appointmentId").value;
+    const appointment = {
+        user_id: session.user.id,
+        name: document.getElementById("name").value.trim(),
+        type: document.getElementById("type").value.trim(),
+        date: document.getElementById("date").value,
+        time: document.getElementById("time").value,
+        notes: document.getElementById("notes").value.trim() || null
+    };
+
+    saveAppointmentBtn.disabled = true;
+    showAppointmentMessage(id ? "Updating appointment…" : "Saving appointment…");
+
+    const query = id
+        ? supabaseClient.from("appointments").update(appointment).eq("id", id).eq("user_id", session.user.id)
+        : supabaseClient.from("appointments").insert(appointment);
+    const { error } = await query;
+    saveAppointmentBtn.disabled = false;
+
+    if (error) {
+        showAppointmentMessage(`Unable to save appointment: ${error.message}`, true);
+        return;
+    }
+
+    resetAppointmentForm();
+    showAppointmentMessage(id ? "Appointment updated." : "Appointment saved.");
+    await loadAppointments();
+});
+
+async function deleteAppointment(id) {
+    if (!window.confirm("Delete this appointment?")) return;
+    const session = await window.dashboardSessionPromise;
+    if (!session) return;
+    const { error } = await supabaseClient.from("appointments").delete().eq("id", id).eq("user_id", session.user.id);
+
+    if (error) {
+        showAppointmentMessage(`Unable to delete appointment: ${error.message}`, true);
+        return;
+    }
+
+    showAppointmentMessage("Appointment deleted.");
+    await loadAppointments();
+}
+
+cancelEditBtn.addEventListener("click", resetAppointmentForm);
+document.getElementById("refreshBtn").addEventListener("click", loadAppointments);
+loadAppointments();
