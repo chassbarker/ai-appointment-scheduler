@@ -1,18 +1,20 @@
 "use strict";
 
 // Supabase project configuration
-const SUPABASE_URL = "https://epwuihimruaglftldkje.supabase.co";
+const SUPABASE_URL =
+    "https://epwuihimruaglftldkje.supabase.co";
+
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_vgakDijQh5xDx_Hgw3Gdcw_Ap2N_XW0";
 
-// GitHub Pages URLs
-const LOGIN_URL =
-    "https://chassbarker.github.io/ai-appointment-scheduler/login.html";
+// GitHub Pages addresses
+const SITE_URL =
+    "https://chassbarker.github.io/ai-appointment-scheduler/";
 
-const DASHBOARD_URL =
-    "https://chassbarker.github.io/ai-appointment-scheduler/dashboard.html";
+const LOGIN_URL = `${SITE_URL}login.html`;
+const DASHBOARD_URL = `${SITE_URL}dashboard.html`;
 
-// Make sure the Supabase browser library loaded
+// Verify that the Supabase browser library loaded
 if (!window.supabase) {
     throw new Error("The Supabase library failed to load.");
 }
@@ -41,13 +43,22 @@ function showAuthMessage(message, isError = false) {
 }
 
 /**
- * Read the email address and password from the login form.
+ * Read values from the authentication form.
  */
 function getCredentials() {
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
+    const fullNameInput =
+        document.getElementById("fullName");
+
+    const emailInput =
+        document.getElementById("email");
+
+    const passwordInput =
+        document.getElementById("password");
 
     return {
+        fullName: fullNameInput
+            ? fullNameInput.value.trim()
+            : "",
         email: emailInput.value.trim(),
         password: passwordInput.value
     };
@@ -83,105 +94,4 @@ if (loginForm) {
             return;
         }
 
-        window.location.replace(DASHBOARD_URL);
-    });
-}
-
-/**
- * Create a new account.
- */
-if (signupButton) {
-    signupButton.addEventListener("click", async () => {
-        if (!loginForm || !loginForm.reportValidity()) {
-            return;
-        }
-
-        signupButton.disabled = true;
-        showAuthMessage("Creating your account…");
-
-        const { email, password } = getCredentials();
-
-        const { data, error } =
-            await supabaseClient.auth.signUp({
-                email,
-                password,
-                options: {
-                    emailRedirectTo: LOGIN_URL
-                }
-            });
-
-        signupButton.disabled = false;
-
-        if (error) {
-            showAuthMessage(
-                `Sign-up failed: ${error.message}`,
-                true
-            );
-
-            return;
-        }
-
-        // Some Supabase projects log the user in immediately when
-        // email confirmation is disabled.
-        if (data.session) {
-            window.location.replace(DASHBOARD_URL);
-            return;
-        }
-
-        showAuthMessage(
-            "Account created. Check your email to confirm your address, then log in."
-        );
-    });
-}
-
-/**
- * Log out the current user.
- */
-const logoutBtn = document.getElementById("logoutBtn");
-
-if (logoutBtn) {
-    logoutBtn.addEventListener("click", async () => {
-        logoutBtn.disabled = true;
-
-        const { error } = await supabaseClient.auth.signOut();
-
-        if (error) {
-            logoutBtn.disabled = false;
-            window.alert(`Logout failed: ${error.message}`);
-            return;
-        }
-
-        window.location.replace(LOGIN_URL);
-    });
-}
-
-/**
- * Protect the dashboard and display the user's email address.
- */
-async function protectDashboard() {
-    const welcomeMessage =
-        document.getElementById("welcomeMessage");
-
-    // This is not the dashboard page.
-    if (!welcomeMessage) {
-        return null;
-    }
-
-    const {
-        data: { session },
-        error
-    } = await supabaseClient.auth.getSession();
-
-    if (error || !session) {
-        window.location.replace(LOGIN_URL);
-        return null;
-    }
-
-    welcomeMessage.textContent =
-        `Welcome, ${session.user.email}!`;
-
-    return session;
-}
-
-// appointments.js waits for this promise before accessing data.
-window.dashboardSessionPromise = protectDashboard();
+        window
