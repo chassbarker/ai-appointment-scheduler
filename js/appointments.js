@@ -21,6 +21,28 @@ function formatAppointmentDate(date, time) {
     }).format(value);
 }
 
+function getSelectedTime() {
+    const hour = Number(document.getElementById("timeHour").value);
+    const minute = document.getElementById("timeMinute").value;
+    const period = document.getElementById("timePeriod").value;
+    let hour24 = hour;
+
+    if (period === "AM" && hour === 12) hour24 = 0;
+    if (period === "PM" && hour !== 12) hour24 = hour + 12;
+    return `${String(hour24).padStart(2, "0")}:${minute}`;
+}
+
+function setSelectedTime(time) {
+    const [hourText, minuteText] = time.slice(0, 5).split(":");
+    const hour24 = Number(hourText);
+    const period = hour24 >= 12 ? "PM" : "AM";
+    const hour12 = hour24 % 12 || 12;
+    document.getElementById("timeHour").value = String(hour12);
+    document.getElementById("timeMinute").value = minuteText;
+    document.getElementById("timePeriod").value = period;
+    document.getElementById("time").value = time.slice(0, 5);
+}
+
 function makeElement(tag, text, className) {
     const element = document.createElement(tag);
     if (text !== undefined) element.textContent = text;
@@ -94,7 +116,7 @@ function beginEdit(id) {
     document.getElementById("name").value = appointment.name;
     document.getElementById("type").value = appointment.type;
     document.getElementById("date").value = appointment.date;
-    document.getElementById("time").value = appointment.time.slice(0, 5);
+    setSelectedTime(appointment.time);
     document.getElementById("notes").value = appointment.notes || "";
     saveAppointmentBtn.textContent = "Update appointment";
     cancelEditBtn.hidden = false;
@@ -108,12 +130,14 @@ appointmentForm.addEventListener("submit", async (event) => {
     if (!session) return;
 
     const id = document.getElementById("appointmentId").value;
+    const selectedTime = getSelectedTime();
+    document.getElementById("time").value = selectedTime;
     const appointment = {
         user_id: session.user.id,
         name: document.getElementById("name").value.trim(),
         type: document.getElementById("type").value.trim(),
         date: document.getElementById("date").value,
-        time: document.getElementById("time").value,
+        time: selectedTime,
         notes: document.getElementById("notes").value.trim() || null
     };
 
