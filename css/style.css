@@ -71,7 +71,7 @@ h1 { max-width: 900px; margin-bottom: 1rem; font-size: clamp(2.15rem, 5vw, 3.6re
 .field { display: grid; gap: .4rem; }
 label { font-weight: 700; }
 .optional { color: var(--muted); font-weight: 400; }
-input, textarea { width: 100%; border: 1px solid var(--border); border-radius: .55rem; padding: .72rem .8rem; color: var(--text); background: #fff; }
+input, select, textarea { width: 100%; border: 1px solid var(--border); border-radius: .55rem; padding: .72rem .8rem; color: var(--text); background: #fff; }
 textarea { resize: vertical; }
 .button-row { display: flex; flex-wrap: wrap; gap: .7rem; }
 .hero .button-row .btn { width: 10.5rem; }
