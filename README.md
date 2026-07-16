@@ -67,7 +67,12 @@ migration-add-status.sql   Completion-status update for existing projects
 - Verify past appointments move to the history section
 - Test two accounts to confirm data isolation
 - Test keyboard navigation and mobile layout
+  
+## Testing notes
 
+The application has been tested with multiple user accounts to verify account registration, login, appointment creation, editing, completion, deletion, and user-data isolation.
+
+Testing identified and resolved an issue that prevented appointments from saving when the optional Notes field was blank. Additional browser, mobile, keyboard, and screen-reader testing is recommended as development continues.
 ## Accessibility
 
 The interface is designed toward WCAG 2.2 Level AA and includes semantic landmarks, skip links, visible keyboard focus, associated form instructions, live status announcements, touch-friendly controls, reduced-motion support, forced-color support, and responsive reflow. This statement describes the project target and is not a guarantee of legal compliance. Automated testing should be supplemented with keyboard, zoom, contrast, and screen-reader testing.
