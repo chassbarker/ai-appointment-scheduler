@@ -27,6 +27,7 @@
     });
     let state = initialState();
     let isBusy = false;
+    let activeChoiceButtons = [];
 
     if (!conversation || !form || !input || !sendButton || !status) return;
 
@@ -202,7 +203,13 @@
         if (!isBusy) input.focus();
     }
 
+    function deactivateAppointmentChoices() {
+        activeChoiceButtons.forEach((button) => { button.disabled = true; });
+        activeChoiceButtons = [];
+    }
+
     function resetConversationState() {
+        deactivateAppointmentChoices();
         state = initialState();
     }
 
@@ -344,6 +351,7 @@
     }
 
     function renderAppointmentChoices(mode) {
+        deactivateAppointmentChoices();
         const label = mode === "reschedule" ? "Select an appointment to reschedule." : "Select an appointment to cancel.";
         const message = addMessage(label);
         const list = document.createElement("div");
@@ -356,7 +364,8 @@
             button.type = "button";
             button.className = "btn btn-source assistant-choice";
             button.textContent = `${index + 1}. ${appointment.type} — ${formatDate(appointment.date)} at ${formatTime(appointment.time)}`;
-            button.addEventListener("click", () => selectAppointment(index));
+            button.addEventListener("click", () => selectAppointment(appointment.id, `${mode}-select`));
+            activeChoiceButtons.push(button);
             list.append(button);
         });
         message.append(list);
@@ -397,13 +406,15 @@
         }
     }
 
-    function selectAppointment(index) {
-        if (!Number.isInteger(index) || index < 0 || index >= state.appointments.length) {
+    function selectAppointment(id, expectedMode) {
+        const appointment = state.appointments.find((item) => item.id === id);
+        if (state.mode !== expectedMode || !expectedMode.endsWith("-select") || !appointment) {
             addMessage("Select one of the appointments shown.");
             focusInput();
             return;
         }
-        state.selectedAppointment = state.appointments[index];
+        deactivateAppointmentChoices();
+        state.selectedAppointment = appointment;
         state.fields = {};
         if (state.mode === "reschedule-select") {
             state.mode = "reschedule-fields";
@@ -516,7 +527,8 @@
 
         if (state.mode.endsWith("-select")) {
             const number = text.trim().match(/^(\d+)[.)]?$/);
-            if (number) selectAppointment(Number(number[1]) - 1);
+            const appointment = number ? state.appointments[Number(number[1]) - 1] : null;
+            if (appointment) selectAppointment(appointment.id, state.mode);
             else {
                 addMessage("Select one of the appointments shown.");
                 focusInput();

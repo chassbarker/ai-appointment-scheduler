@@ -59,6 +59,7 @@ class FakeElement {
     }
 
     async dispatch(type) {
+        if (type === "click" && this.disabled) return;
         const event = { preventDefault() {} };
         for (const listener of this.listeners.get(type) || []) {
             await listener(event);
@@ -128,6 +129,15 @@ const existingAppointment = {
     time: "10:00",
     status: "scheduled"
 };
+const secondAppointment = {
+    id: "appointment-2",
+    user_id: "user-1",
+    name: "Vision",
+    type: "Vision",
+    date: futureDate(7),
+    time: "14:00",
+    status: "scheduled"
+};
 const writes = { inserts: [], updates: [], deletes: [] };
 
 class FakeQuery {
@@ -172,7 +182,7 @@ class FakeQuery {
     }
 
     then(resolve, reject) {
-        let result = { data: [existingAppointment], error: null };
+        let result = { data: [existingAppointment, secondAppointment], error: null };
         if (this.operation === "update") {
             writes.updates.push({ values: this.values, filters: this.filters });
             result = { error: null };
@@ -211,6 +221,11 @@ async function submit(text) {
 function latestChoice() {
     const message = elements.assistantConversation.children.at(-1);
     return message.children[1]?.children[0] || null;
+}
+
+function latestChoices() {
+    const message = elements.assistantConversation.children.at(-1);
+    return message.children[1]?.children || [];
 }
 
 async function run() {
@@ -269,13 +284,18 @@ async function run() {
     assert.ok(writes.updates[0].filters.some(([field, value]) => field === "user_id" && value === "user-1"));
 
     await actionButtons[2].dispatch("click");
-    assert.ok(latestChoice(), "cancellation must display appointment choices");
-    await latestChoice().dispatch("click");
+    const cancellationChoices = latestChoices();
+    assert.equal(cancellationChoices.length, 2, "cancellation must display every upcoming appointment");
+    await cancellationChoices[0].dispatch("click");
+    assert.ok(cancellationChoices.every((button) => button.disabled), "choices must be disabled after selection");
+    await cancellationChoices[1].dispatch("click");
     await submit("no");
     assert.equal(writes.deletes.length, 0, "declined cancellation must not delete");
 
     await actionButtons[2].dispatch("click");
-    await latestChoice().dispatch("click");
+    const confirmedCancellationChoices = latestChoices();
+    await confirmedCancellationChoices[0].dispatch("click");
+    await confirmedCancellationChoices[1].dispatch("click");
     await submit("yes");
     assert.equal(writes.deletes.length, 1);
     assert.ok(writes.deletes[0].filters.some(([field, value]) => field === "id" && value === "appointment-1"));
