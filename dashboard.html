@@ -27,6 +27,30 @@
             <p>Create, update, and delete your upcoming appointments.</p>
         </section>
 
+        <section class="card assistant-card" aria-labelledby="assistantHeading">
+            <div class="assistant-heading">
+                <div>
+                    <p class="eyebrow">Scheduling assistant</p>
+                    <h2 id="assistantHeading">How can I help?</h2>
+                </div>
+                <div class="assistant-actions" aria-label="Start an appointment task">
+                    <button type="button" class="btn btn-secondary btn-small" data-assistant-action="book">Book</button>
+                    <button type="button" class="btn btn-secondary btn-small" data-assistant-action="reschedule">Reschedule</button>
+                    <button type="button" class="btn btn-danger btn-small" data-assistant-action="cancel">Cancel</button>
+                </div>
+            </div>
+            <div id="assistantConversation" class="assistant-conversation" role="log" aria-live="polite" aria-relevant="additions text" aria-label="Conversation with scheduling assistant" tabindex="0"></div>
+            <form id="assistantForm" class="assistant-form">
+                <label for="assistantInput">Message the scheduling assistant</label>
+                <div class="assistant-input-row">
+                    <input id="assistantInput" name="message" type="text" maxlength="250" autocomplete="off" placeholder="For example: Book dental tomorrow at 3 PM" aria-describedby="assistantHelp assistantStatus" required>
+                    <button id="assistantSendBtn" type="submit" class="btn btn-primary">Send</button>
+                </div>
+                <p id="assistantHelp" class="assistant-help">You can book, reschedule, or cancel an appointment.</p>
+                <p id="assistantStatus" class="message assistant-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"></p>
+            </form>
+        </section>
+
         <section class="card" aria-labelledby="formHeading">
             <h2 id="formHeading">Schedule an appointment</h2>
             <form id="appointmentForm" class="form appointment-form">
@@ -119,5 +143,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/auth.js"></script>
     <script src="js/appointments.js"></script>
+    <script src="js/scheduling-assistant.js"></script>
 </body>
 </html>

@@ -198,4 +198,5 @@ cancelEditBtn.addEventListener("click", resetAppointmentForm);
 document.getElementById("refreshBtn").addEventListener("click", loadAppointments);
 searchInput.addEventListener("input", displayAppointments);
 typeFilter.addEventListener("change", displayAppointments);
+window.appointmentsDashboard = Object.freeze({ loadAppointments });
 loadAppointments();
