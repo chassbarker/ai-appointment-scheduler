@@ -890,6 +890,10 @@ textarea {
     border-radius: var(--radius-xl);
 }
 
+.manual-appointment-section:not([open]) {
+    padding-block: clamp(1rem, 2.4vw, 1.6rem);
+}
+
 .manual-appointment-section > summary {
     min-height: 3rem;
     display: flex;
