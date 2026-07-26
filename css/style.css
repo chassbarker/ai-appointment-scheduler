@@ -1,28 +1,24 @@
 :root {
     color-scheme: only light;
-    --primary-50: #eef7f4;
-    --primary-100: #d8ebe5;
-    --primary-500: #347d6f;
-    --primary-600: #28695c;
-    --primary-700: #1f554a;
-    --accent-50: #fbf0e9;
-    --accent-100: #f2d5c5;
-    --accent-600: #a24f32;
-    --accent-700: #8a3f28;
-    --button-primary: #316f64;
-    --button-primary-hover: #255a51;
-    --slate-50: #f8f6f1;
-    --slate-100: #f1eee7;
-    --slate-200: #e3ded3;
-    --slate-300: #d0c8bb;
-    --slate-400: #9a9185;
-    --slate-500: #756d63;
-    --slate-600: #5a544c;
-    --slate-700: #403c37;
-    --slate-800: #2d2a27;
-    --slate-900: #1c1a18;
+    --primary-50: #eaf6f9;
+    --primary-100: #cbe8ef;
+    --primary-500: #168aad;
+    --primary-600: #11738f;
+    --primary-700: #0d5d73;
+    --button-primary: #3a2f2a;
+    --button-primary-hover: #2b2320;
+    --slate-50: #f8f5ef;
+    --slate-100: #f1ece5;
+    --slate-200: #e1d9cf;
+    --slate-300: #cec2b5;
+    --slate-400: #a49385;
+    --slate-500: #81746b;
+    --slate-600: #6b625e;
+    --slate-700: #4f4742;
+    --slate-800: #332d2a;
+    --slate-900: #211d1b;
     --surface: #fffdf9;
-    --success: #287a4b;
+    --success: #0d6f88;
     --danger: #b91c1c;
     --danger-soft: #fef2f2;
     --radius-sm: .375rem;
@@ -30,9 +26,9 @@
     --radius-lg: 1rem;
     --radius-xl: 1.5rem;
     --radius-full: 9999px;
-    --shadow-sm: 0 1px 2px rgb(28 26 24 / .08);
-    --shadow-md: 0 12px 30px rgb(28 26 24 / .1);
-    --shadow-lg: 0 24px 60px rgb(28 26 24 / .14);
+    --shadow-sm: 0 1px 2px rgb(33 29 27 / .08);
+    --shadow-md: 0 12px 30px rgb(33 29 27 / .1);
+    --shadow-lg: 0 24px 60px rgb(33 29 27 / .14);
     --transition: 150ms ease;
 }
 
@@ -174,11 +170,11 @@ h4 {
     align-items: center;
     justify-content: center;
     color: #fff;
-    background: var(--primary-600);
+    background: var(--button-primary);
     border-radius: .75rem;
     font-size: .72rem;
     letter-spacing: .04em;
-    box-shadow: 0 8px 20px rgb(40 105 92 / .24);
+    box-shadow: 0 8px 20px rgb(58 47 42 / .24);
 }
 
 .nav {
@@ -232,8 +228,8 @@ h4 {
     overflow: hidden;
     padding-block: clamp(4rem, 9vw, 7rem);
     background:
-        radial-gradient(circle at 92% 10%, rgb(216 235 229 / .95), transparent 31rem),
-        radial-gradient(circle at 6% 92%, rgb(242 231 217 / .72), transparent 24rem),
+        radial-gradient(circle at 92% 10%, rgb(203 232 239 / .92), transparent 31rem),
+        radial-gradient(circle at 6% 92%, rgb(233 222 210 / .7), transparent 24rem),
         var(--slate-50);
 }
 
@@ -249,7 +245,7 @@ h4 {
 
 .eyebrow {
     margin-bottom: 1rem;
-    color: var(--accent-700);
+    color: var(--primary-700);
     font-size: .82rem;
     font-weight: 800;
     letter-spacing: .08em;
@@ -307,7 +303,7 @@ h4 {
     inset: .55rem;
     z-index: -1;
     content: "";
-    background: var(--accent-100);
+    background: var(--primary-100);
     border-radius: var(--radius-xl);
     transform: rotate(2deg);
 }
@@ -338,8 +334,8 @@ h4 {
 .preview-status {
     padding: .28rem .65rem;
     color: var(--success);
-    background: #eff8f2;
-    border: 1px solid #b9dec5;
+    background: #eaf7fa;
+    border: 1px solid #b9dee7;
     border-radius: var(--radius-full);
     font-size: .72rem;
     font-weight: 800;
@@ -407,8 +403,8 @@ h4 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--accent-700);
-    background: var(--accent-50);
+    color: var(--primary-700);
+    background: var(--primary-50);
     border-radius: var(--radius-full);
     font-weight: 800;
 }
@@ -463,7 +459,7 @@ h4 {
 .btn-primary {
     color: #fff;
     background: var(--button-primary);
-    box-shadow: 0 8px 18px rgb(49 111 100 / .22);
+    box-shadow: 0 8px 18px rgb(58 47 42 / .22);
 }
 
 .btn-primary:hover {
@@ -534,8 +530,8 @@ h4 {
     place-items: center;
     padding-block: clamp(3rem, 8vw, 6rem);
     background:
-        radial-gradient(circle at 85% 12%, rgb(216 235 229 / .9), transparent 28rem),
-        radial-gradient(circle at 10% 88%, rgb(242 231 217 / .68), transparent 24rem);
+        radial-gradient(circle at 85% 12%, rgb(203 232 239 / .9), transparent 28rem),
+        radial-gradient(circle at 10% 88%, rgb(233 222 210 / .68), transparent 24rem);
 }
 
 .auth-card {
@@ -552,7 +548,7 @@ h4 {
     inset: 0 0 auto;
     height: .3rem;
     content: "";
-    background: linear-gradient(90deg, var(--primary-700), var(--accent-600));
+    background: linear-gradient(90deg, var(--button-primary), var(--primary-500));
 }
 
 .auth-card h1 {
@@ -663,7 +659,7 @@ textarea {
     overflow: hidden;
     padding: clamp(1.5rem, 4vw, 2.5rem);
     background:
-        radial-gradient(circle at 92% 15%, rgb(216 235 229 / .9), transparent 22rem),
+        radial-gradient(circle at 92% 15%, rgb(203 232 239 / .9), transparent 22rem),
         var(--surface);
     border-radius: var(--radius-xl);
 }
@@ -675,7 +671,7 @@ textarea {
     width: 12rem;
     height: 12rem;
     content: "";
-    border: 1.7rem solid rgb(40 105 92 / .08);
+    border: 1.7rem solid rgb(22 138 173 / .08);
     border-radius: var(--radius-full);
 }
 
@@ -732,7 +728,7 @@ textarea {
     overflow-y: auto;
     padding: 1rem;
     background:
-        linear-gradient(rgb(248 246 241 / .96), rgb(248 246 241 / .96)),
+        linear-gradient(rgb(248 245 239 / .96), rgb(248 245 239 / .96)),
         radial-gradient(circle at top right, var(--primary-100), transparent 20rem);
     border: 1px solid var(--slate-200);
     border-radius: var(--radius-lg);
@@ -918,16 +914,16 @@ textarea {
 .status-badge {
     padding: .22rem .6rem;
     color: var(--success);
-    background: #eff8f2;
-    border: 1px solid #b9dec5;
+    background: #eaf7fa;
+    border: 1px solid #b9dee7;
     border-radius: var(--radius-full);
     font-size: .72rem;
     font-weight: 800;
 }
 
 .is-completed {
-    background: #f6fbf7;
-    border-color: #b9dec5;
+    background: #f3fafb;
+    border-color: #b9dee7;
 }
 
 .footer {
@@ -976,7 +972,7 @@ textarea {
 
 .error-card h1 {
     margin: 0;
-    color: var(--accent-600);
+    color: var(--primary-600);
     font-size: clamp(5rem, 18vw, 8rem);
     letter-spacing: -.08em;
 }
