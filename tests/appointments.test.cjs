@@ -100,7 +100,9 @@ const elements = {
     name: new FakeElement("input"),
     type: new FakeElement("select"),
     notes: new FakeElement("textarea"),
-    refreshBtn: new FakeElement("button")
+    refreshBtn: new FakeElement("button"),
+    manualAppointmentSection: new FakeElement("details"),
+    openManualFormBtn: new FakeElement("button")
 };
 
 global.document = {
@@ -207,6 +209,11 @@ async function run() {
     await Promise.resolve();
     assert.equal(elements.upcomingAppointmentsList.children.length, 1, "initial load should render the appointment");
 
+    await elements.openManualFormBtn.dispatch("click");
+    assert.equal(elements.manualAppointmentSection.open, true, "manual shortcut should expand the appointment form");
+    assert.equal(document.activeElement, elements.name, "manual shortcut should focus the first field");
+    elements.manualAppointmentSection.open = false;
+
     elements.name.value = "Therapy session";
     elements.type.value = "Therapy";
     elements.date.value = futureDate(10);
@@ -226,6 +233,7 @@ async function run() {
     const editButton = actions.children[1];
     const deleteButton = actions.children[2];
     await editButton.dispatch("click");
+    assert.equal(elements.manualAppointmentSection.open, true, "editing should expand the appointment form");
     elements.date.value = futureDate(12);
     mutationAffectsRow = false;
     await elements.appointmentForm.dispatch("submit");
