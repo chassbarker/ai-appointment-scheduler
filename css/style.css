@@ -273,7 +273,24 @@ h4 {
 }
 
 .hero-actions {
+    align-items: center;
     margin-bottom: 1.25rem;
+}
+
+.hero-source-link {
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    padding: .45rem .2rem;
+    color: var(--primary-700);
+    font-size: .9rem;
+    font-weight: 750;
+    text-decoration-thickness: .1rem;
+    text-underline-offset: .25rem;
+}
+
+.hero-source-link:hover {
+    color: var(--primary-600);
 }
 
 .tech-badges {
@@ -287,9 +304,9 @@ h4 {
 
 .tech-badges li {
     padding: .45rem .78rem;
-    color: var(--slate-700);
-    background: rgb(255 253 249 / .84);
-    border: 1px solid var(--slate-200);
+    color: var(--primary-700);
+    background: var(--primary-50);
+    border: 1px solid var(--primary-100);
     border-radius: var(--radius-full);
     font-size: .8rem;
     font-weight: 700;
@@ -298,7 +315,7 @@ h4 {
 .hero-preview {
     position: relative;
     padding: clamp(1.2rem, 3vw, 1.6rem);
-    background: rgb(255 253 249 / .95);
+    background: var(--surface);
     border: 1px solid var(--slate-200);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
@@ -1163,7 +1180,7 @@ textarea {
 
     .header-inner {
         min-height: auto;
-        padding-block: .5rem;
+        padding-block: .25rem;
     }
 
     .logo span:last-child {
@@ -1172,8 +1189,8 @@ textarea {
     }
 
     .logo-mark {
-        width: 2.75rem;
-        height: 2.75rem;
+        width: 2.5rem;
+        height: 2.5rem;
     }
 
     .nav {
@@ -1183,7 +1200,7 @@ textarea {
     .nav a,
     .link-button {
         min-height: 2.75rem;
-        padding: .5rem .65rem;
+        padding: .35rem .6rem;
     }
 
     .hero {
@@ -1192,13 +1209,14 @@ textarea {
     }
 
     .hero-grid {
-        gap: 1.5rem;
+        gap: 2rem;
         transform: none;
     }
 
     .hero h1 {
         margin-bottom: 1rem;
-        font-size: clamp(2.25rem, 11vw, 3rem);
+        font-size: clamp(2rem, 9.5vw, 2.55rem);
+        line-height: 1.08;
     }
 
     .hero-description {
@@ -1216,6 +1234,11 @@ textarea {
 
     .hero-actions .btn {
         width: 100%;
+    }
+
+    .hero-source-link {
+        width: fit-content;
+        justify-self: start;
     }
 
     .footer-inner {
@@ -1391,6 +1414,7 @@ textarea {
     }
 
     .hero-preview {
+        margin-top: .25rem;
         padding: 1rem;
     }
 
@@ -1481,6 +1505,17 @@ textarea {
         background:
             linear-gradient(rgb(7 17 31 / .94), rgb(7 17 31 / .94)),
             radial-gradient(circle at top right, var(--primary-100), transparent 20rem);
+    }
+
+    .hero-preview {
+        background: #132936;
+        border-color: #2e6175;
+    }
+
+    .tech-badges li {
+        color: var(--primary-700);
+        background: #123340;
+        border-color: #25657a;
     }
 
     .btn-primary,
