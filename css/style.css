@@ -237,6 +237,7 @@ h4 {
     display: grid;
     gap: 3rem;
     align-items: center;
+    transform: translateY(-1.25rem);
 }
 
 .hero-content {
@@ -262,8 +263,9 @@ h4 {
 .hero-description {
     max-width: 45rem;
     margin-bottom: 2rem;
-    color: var(--slate-600);
+    color: var(--slate-700);
     font-size: clamp(1.05rem, 2vw, 1.18rem);
+    font-weight: 500;
 }
 
 .hero-actions {
@@ -1161,6 +1163,10 @@ textarea {
 
     .hero {
         padding-block: 3.5rem;
+    }
+
+    .hero-grid {
+        transform: none;
     }
 
     .hero h1 {
