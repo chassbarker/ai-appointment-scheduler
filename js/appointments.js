@@ -9,6 +9,8 @@ const saveAppointmentBtn = document.getElementById("saveAppointmentBtn");
 const dateInput = document.getElementById("date");
 const searchInput = document.getElementById("appointmentSearch");
 const typeFilter = document.getElementById("typeFilter");
+const manualAppointmentSection = document.getElementById("manualAppointmentSection");
+const openManualFormBtn = document.getElementById("openManualFormBtn");
 let appointmentsCache = [];
 
 function todayString() {
@@ -153,6 +155,7 @@ function beginEdit(id) {
     document.getElementById("notes").value = appointment.notes || "";
     saveAppointmentBtn.textContent = "Update appointment";
     cancelEditBtn.hidden = false;
+    manualAppointmentSection.open = true;
     appointmentForm.scrollIntoView({ behavior: "smooth", block: "start" });
     document.getElementById("name").focus();
 }
@@ -219,6 +222,11 @@ async function deleteAppointment(id) {
 }
 
 cancelEditBtn.addEventListener("click", resetAppointmentForm);
+openManualFormBtn.addEventListener("click", () => {
+    manualAppointmentSection.open = true;
+    appointmentForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("name").focus();
+});
 document.getElementById("refreshBtn").addEventListener("click", loadAppointments);
 searchInput.addEventListener("input", displayAppointments);
 typeFilter.addEventListener("change", displayAppointments);
