@@ -14,7 +14,7 @@
     <a class="skip-link" href="#mainContent">Skip to main content</a>
     <header class="header">
         <div class="container header-inner">
-            <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true">AS</span><span>AI Appointment Scheduler</span></a>
+            <a class="logo" href="index.html" aria-label="AI Appointment Scheduler home"><span class="logo-mark" aria-hidden="true">AS</span><span>AI Appointment Scheduler</span></a>
             <nav class="nav" aria-label="Main navigation">
                 <a href="index.html">Home</a>
                 <button type="button" id="logoutBtn" class="link-button">Log out</button>
@@ -35,7 +35,7 @@
                     <p class="eyebrow">Scheduling assistant</p>
                     <h2 id="assistantHeading">How can I help?</h2>
                 </div>
-                <div class="assistant-actions" aria-label="Start an appointment task">
+                <div class="assistant-actions" role="group" aria-label="Start an appointment task">
                     <button type="button" class="btn btn-secondary btn-small" data-assistant-action="book">Book</button>
                     <button type="button" class="btn btn-secondary btn-small" data-assistant-action="reschedule">Reschedule</button>
                     <button type="button" class="btn btn-danger btn-small" data-assistant-action="cancel">Cancel</button>
@@ -126,7 +126,7 @@
                 <h2 id="appointmentsHeading">Manage appointments</h2>
                 <button id="refreshBtn" type="button" class="btn btn-secondary btn-small">Refresh</button>
             </div>
-            <div class="appointment-filters" aria-label="Appointment filters">
+            <div class="appointment-filters" role="group" aria-label="Appointment filters">
                 <div class="field"><label for="appointmentSearch">Search</label><input id="appointmentSearch" type="search" placeholder="Search name, type, or notes"></div>
                 <div class="field"><label for="typeFilter">Filter by type</label><select id="typeFilter"><option value="">All types</option><option>Consultation</option><option>Follow-up</option><option>Medical</option><option>Dental</option><option>Vision</option><option>Therapy</option><option>Personal</option><option>Business</option><option>Other</option></select></div>
             </div>

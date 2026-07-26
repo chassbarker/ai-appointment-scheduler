@@ -25,6 +25,12 @@ function showAppointmentMessage(message, isError = false) {
     if (isError) appointmentMessage.focus();
 }
 
+function requireAffectedAppointment(data) {
+    if (!Array.isArray(data) || data.length !== 1) {
+        throw new Error("The appointment no longer exists or is not available to this account.");
+    }
+}
+
 function appointmentDate(appointment) {
     return new Date(`${appointment.date}T${appointment.time}`);
 }
@@ -117,13 +123,14 @@ async function loadAppointments() {
     const session = await window.dashboardSessionPromise;
     if (!session) return;
     upcomingList.replaceChildren(makeElement("p", "Loading appointments..."));
-    const { data, error } = await supabaseClient.from("appointments").select("id, user_id, name, type, date, time, notes, status, created_at").eq("user_id", session.user.id).order("date", { ascending: true }).order("time", { ascending: true });
-    if (error) {
+    try {
+        const { data, error } = await supabaseClient.from("appointments").select("id, user_id, name, type, date, time, notes, status, created_at").eq("user_id", session.user.id).order("date", { ascending: true }).order("time", { ascending: true });
+        if (error) throw error;
+        appointmentsCache = data || [];
+        displayAppointments();
+    } catch (error) {
         upcomingList.replaceChildren(makeElement("p", `Unable to load appointments: ${error.message}`, "message-error"));
-        return;
     }
-    appointmentsCache = data || [];
-    displayAppointments();
 }
 
 function resetAppointmentForm() {
@@ -166,32 +173,49 @@ appointmentForm.addEventListener("submit", async (event) => {
     const appointment = { user_id: session.user.id, name: document.getElementById("name").value.trim(), type: document.getElementById("type").value, date: selectedDate, time: selectedTime, notes: document.getElementById("notes").value.trim() || null };
     saveAppointmentBtn.disabled = true;
     showAppointmentMessage(id ? "Updating appointment..." : "Saving appointment...");
-    const query = id ? supabaseClient.from("appointments").update(appointment).eq("id", id).eq("user_id", session.user.id) : supabaseClient.from("appointments").insert(appointment);
-    const { error } = await query;
-    saveAppointmentBtn.disabled = false;
-    if (error) { showAppointmentMessage(`Unable to save appointment: ${error.message}`, true); return; }
-    resetAppointmentForm();
-    showAppointmentMessage(id ? "Appointment updated." : "Appointment saved.");
-    await loadAppointments();
+    try {
+        const result = id
+            ? await supabaseClient.from("appointments").update(appointment).eq("id", id).eq("user_id", session.user.id).select("id")
+            : await supabaseClient.from("appointments").insert(appointment);
+        if (result.error) throw result.error;
+        if (id) requireAffectedAppointment(result.data);
+        resetAppointmentForm();
+        showAppointmentMessage(id ? "Appointment updated." : "Appointment saved.");
+        await loadAppointments();
+    } catch (error) {
+        showAppointmentMessage(`Unable to save appointment: ${error.message}`, true);
+    } finally {
+        saveAppointmentBtn.disabled = false;
+    }
 });
 
 async function markCompleted(id) {
     const session = await window.dashboardSessionPromise;
     if (!session) return;
-    const { error } = await supabaseClient.from("appointments").update({ status: "completed" }).eq("id", id).eq("user_id", session.user.id);
-    if (error) { showAppointmentMessage(`Unable to complete appointment: ${error.message}`, true); return; }
-    showAppointmentMessage("Appointment marked completed.");
-    await loadAppointments();
+    try {
+        const { data, error } = await supabaseClient.from("appointments").update({ status: "completed" }).eq("id", id).eq("user_id", session.user.id).select("id");
+        if (error) throw error;
+        requireAffectedAppointment(data);
+        showAppointmentMessage("Appointment marked completed.");
+        await loadAppointments();
+    } catch (error) {
+        showAppointmentMessage(`Unable to complete appointment: ${error.message}`, true);
+    }
 }
 
 async function deleteAppointment(id) {
     if (!window.confirm("Permanently delete this appointment?")) return;
     const session = await window.dashboardSessionPromise;
     if (!session) return;
-    const { error } = await supabaseClient.from("appointments").delete().eq("id", id).eq("user_id", session.user.id);
-    if (error) { showAppointmentMessage(`Unable to delete appointment: ${error.message}`, true); return; }
-    showAppointmentMessage("Appointment deleted.");
-    await loadAppointments();
+    try {
+        const { data, error } = await supabaseClient.from("appointments").delete().eq("id", id).eq("user_id", session.user.id).select("id");
+        if (error) throw error;
+        requireAffectedAppointment(data);
+        showAppointmentMessage("Appointment deleted.");
+        await loadAppointments();
+    } catch (error) {
+        showAppointmentMessage(`Unable to delete appointment: ${error.message}`, true);
+    }
 }
 
 cancelEditBtn.addEventListener("click", resetAppointmentForm);

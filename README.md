@@ -65,6 +65,7 @@ js/auth.js                 Authentication and password recovery
 js/appointments.js         CRUD, filters, validation, and safe rendering
 js/scheduling-assistant.js Conversational scheduling state machine and Supabase operations
 tests/scheduling-assistant.test.cjs Dependency-free assistant interaction tests
+tests/appointments.test.cjs           Dependency-free manual appointment interaction tests
 index.html                 Landing page
 login.html                 Login and account creation
 reset-password.html        Password reset page
@@ -77,6 +78,7 @@ migration-add-status.sql   Completion-status update for existing projects
 ## Testing checklist
 
 - Run `node tests/scheduling-assistant.test.cjs`
+- Run `node tests/appointments.test.cjs`
 - Create and confirm an account
 - Log in, log out, and reset a password
 - Create, edit, complete, and delete an appointment
