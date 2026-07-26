@@ -1,10 +1,12 @@
 :root {
     color-scheme: only light;
-    --primary-50: #f2f5f9;
-    --primary-100: #e1e8f0;
-    --primary-500: #657a9b;
-    --primary-600: #526987;
-    --primary-700: #405572;
+    --primary-50: #eff6ff;
+    --primary-100: #dbeafe;
+    --primary-500: #3b82f6;
+    --primary-600: #2563eb;
+    --primary-700: #1d4ed8;
+    --button-slate: #526987;
+    --button-slate-hover: #405572;
     --slate-50: #f8fafc;
     --slate-100: #f1f5f9;
     --slate-200: #e2e8f0;
@@ -172,7 +174,7 @@ h4 {
     border-radius: .75rem;
     font-size: .72rem;
     letter-spacing: .04em;
-    box-shadow: 0 8px 20px rgb(82 105 135 / .24);
+    box-shadow: 0 8px 20px rgb(37 99 235 / .24);
 }
 
 .nav {
@@ -207,12 +209,12 @@ h4 {
 .nav .nav-cta {
     padding-inline: 1rem;
     color: #fff;
-    background: var(--primary-600);
+    background: var(--button-slate);
 }
 
 .nav .nav-cta:hover {
     color: #fff;
-    background: var(--primary-700);
+    background: var(--button-slate-hover);
 }
 
 .landing-main {
@@ -226,8 +228,8 @@ h4 {
     overflow: hidden;
     padding-block: clamp(4rem, 9vw, 7rem);
     background:
-        radial-gradient(circle at 92% 10%, rgb(225 232 240 / .95), transparent 31rem),
-        radial-gradient(circle at 6% 92%, rgb(242 245 249 / .9), transparent 24rem),
+        radial-gradient(circle at 92% 10%, rgb(219 234 254 / .95), transparent 31rem),
+        radial-gradient(circle at 6% 92%, rgb(239 246 255 / .85), transparent 24rem),
         var(--slate-50);
 }
 
@@ -456,13 +458,13 @@ h4 {
 
 .btn-primary {
     color: #fff;
-    background: var(--primary-600);
+    background: var(--button-slate);
     box-shadow: 0 8px 18px rgb(82 105 135 / .2);
 }
 
 .btn-primary:hover {
     color: #fff;
-    background: var(--primary-700);
+    background: var(--button-slate-hover);
 }
 
 .btn-secondary {
@@ -472,21 +474,21 @@ h4 {
 }
 
 .btn-secondary:hover {
-    color: var(--primary-700);
+    color: var(--button-slate-hover);
     background: var(--slate-50);
-    border-color: var(--primary-500);
+    border-color: var(--button-slate);
 }
 
 .btn-source {
-    color: var(--primary-700);
+    color: var(--button-slate-hover);
     background: transparent;
-    border-color: var(--primary-500);
+    border-color: var(--button-slate);
 }
 
 .btn-source:hover {
     color: #fff;
-    background: var(--primary-700);
-    border-color: var(--primary-700);
+    background: var(--button-slate-hover);
+    border-color: var(--button-slate-hover);
 }
 
 .btn-danger {
@@ -528,8 +530,8 @@ h4 {
     place-items: center;
     padding-block: clamp(3rem, 8vw, 6rem);
     background:
-        radial-gradient(circle at 85% 12%, rgb(225 232 240 / .95), transparent 28rem),
-        radial-gradient(circle at 10% 88%, rgb(242 245 249 / .95), transparent 24rem);
+        radial-gradient(circle at 85% 12%, rgb(219 234 254 / .9), transparent 28rem),
+        radial-gradient(circle at 10% 88%, rgb(239 246 255 / .9), transparent 24rem);
 }
 
 .auth-card {
@@ -546,7 +548,7 @@ h4 {
     inset: 0 0 auto;
     height: .3rem;
     content: "";
-    background: linear-gradient(90deg, var(--primary-700), #8192aa);
+    background: linear-gradient(90deg, var(--primary-600), #60a5fa);
 }
 
 .auth-card h1 {
@@ -657,7 +659,7 @@ textarea {
     overflow: hidden;
     padding: clamp(1.5rem, 4vw, 2.5rem);
     background:
-        radial-gradient(circle at 92% 15%, rgb(225 232 240 / .95), transparent 22rem),
+        radial-gradient(circle at 92% 15%, rgb(219 234 254 / .95), transparent 22rem),
         #fff;
     border-radius: var(--radius-xl);
 }
@@ -669,7 +671,7 @@ textarea {
     width: 12rem;
     height: 12rem;
     content: "";
-    border: 1.7rem solid rgb(82 105 135 / .08);
+    border: 1.7rem solid rgb(37 99 235 / .07);
     border-radius: var(--radius-full);
 }
 
