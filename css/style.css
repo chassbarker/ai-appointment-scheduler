@@ -5,6 +5,10 @@
     --primary-500: #347d6f;
     --primary-600: #28695c;
     --primary-700: #1f554a;
+    --accent-50: #fbf0e9;
+    --accent-100: #f2d5c5;
+    --accent-600: #a24f32;
+    --accent-700: #8a3f28;
     --button-primary: #316f64;
     --button-primary-hover: #255a51;
     --slate-50: #f8f6f1;
@@ -245,7 +249,7 @@ h4 {
 
 .eyebrow {
     margin-bottom: 1rem;
-    color: var(--primary-700);
+    color: var(--accent-700);
     font-size: .82rem;
     font-weight: 800;
     letter-spacing: .08em;
@@ -303,7 +307,7 @@ h4 {
     inset: .55rem;
     z-index: -1;
     content: "";
-    background: var(--primary-100);
+    background: var(--accent-100);
     border-radius: var(--radius-xl);
     transform: rotate(2deg);
 }
@@ -403,8 +407,8 @@ h4 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--primary-700);
-    background: var(--primary-100);
+    color: var(--accent-700);
+    background: var(--accent-50);
     border-radius: var(--radius-full);
     font-weight: 800;
 }
@@ -548,7 +552,7 @@ h4 {
     inset: 0 0 auto;
     height: .3rem;
     content: "";
-    background: linear-gradient(90deg, var(--primary-700), #6ea89b);
+    background: linear-gradient(90deg, var(--primary-700), var(--accent-600));
 }
 
 .auth-card h1 {
@@ -972,7 +976,7 @@ textarea {
 
 .error-card h1 {
     margin: 0;
-    color: var(--primary-600);
+    color: var(--accent-600);
     font-size: clamp(5rem, 18vw, 8rem);
     letter-spacing: -.08em;
 }
