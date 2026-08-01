@@ -139,6 +139,7 @@ const secondAppointment = {
     status: "scheduled"
 };
 const writes = { inserts: [], updates: [], deletes: [] };
+let mutationAffectsRow = true;
 
 class FakeQuery {
     constructor() {
@@ -148,7 +149,6 @@ class FakeQuery {
     }
 
     select() {
-        this.operation = "select";
         return this;
     }
 
@@ -185,11 +185,11 @@ class FakeQuery {
         let result = { data: [existingAppointment, secondAppointment], error: null };
         if (this.operation === "update") {
             writes.updates.push({ values: this.values, filters: this.filters });
-            result = { error: null };
+            result = { data: mutationAffectsRow ? [{ id: existingAppointment.id }] : [], error: null };
         }
         if (this.operation === "delete") {
             writes.deletes.push({ filters: this.filters });
-            result = { error: null };
+            result = { data: mutationAffectsRow ? [{ id: existingAppointment.id }] : [], error: null };
         }
         return Promise.resolve(result).then(resolve, reject);
     }
@@ -300,6 +300,15 @@ async function run() {
     assert.equal(writes.deletes.length, 1);
     assert.ok(writes.deletes[0].filters.some(([field, value]) => field === "id" && value === "appointment-1"));
     assert.ok(writes.deletes[0].filters.some(([field, value]) => field === "user_id" && value === "user-1"));
+
+    await actionButtons[2].dispatch("click");
+    const staleCancellationChoices = latestChoices();
+    await staleCancellationChoices[0].dispatch("click");
+    mutationAffectsRow = false;
+    await submit("yes");
+    assert.equal(messages().at(-1), "I could not cancel that appointment. Please try again.");
+    assert.match(elements.assistantStatus.textContent, /no longer exists or is not available/);
+    mutationAffectsRow = true;
 
     console.log("Scheduling assistant interaction tests passed.");
 }

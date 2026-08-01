@@ -5,46 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Securely create and manage appointments with Supabase.">
     <meta name="author" content="Chassidy Barker">
-    <meta name="theme-color" content="#2563eb">
-    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#0f2744">
+    <meta name="color-scheme" content="light dark">
     <title>AI Appointment Scheduler</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=20260726-landing">
 </head>
 <body>
     <a class="skip-link" href="#mainContent">Skip to main content</a>
-    <header class="header container">
-        <a class="logo" href="index.html" aria-label="AI Appointment Scheduler home">AI Appointment Scheduler</a>
-        <nav class="nav" aria-label="Main navigation">
-            <a href="index.html" aria-current="page">Home</a>
-            <a href="login.html">Log in</a>
-        </nav>
+    <header class="header">
+        <div class="container header-inner">
+            <a class="logo" href="index.html" aria-label="AI Appointment Scheduler home"><span class="logo-mark" aria-hidden="true">AS</span><span>AI Appointment Scheduler</span></a>
+            <nav class="nav" aria-label="Main navigation">
+                <a href="index.html" aria-current="page">Home</a>
+                <a class="nav-cta" href="login.html">Log in</a>
+            </nav>
+        </div>
     </header>
 
-    <main id="mainContent" class="hero container" tabindex="-1">
-        <section class="hero-content">
-            <p class="eyebrow">Supabase portfolio project</p>
-            <h1>Manage appointments with a secure cloud-backed application.</h1>
-            <p>Create an account, schedule appointments, and manage upcoming visits using Supabase Authentication and PostgreSQL.</p>
-            <ul class="tech-badges" aria-label="Technologies used">
-                <li>HTML5</li>
-                <li>CSS3</li>
-                <li>JavaScript</li>
-                <li>Supabase</li>
-                <li>PostgreSQL</li>
-                <li>Authentication</li>
-                <li>Responsive design</li>
-            </ul>
-            <div class="button-row" aria-label="Account actions">
-                <a class="btn btn-primary" href="login.html">Create account</a>
-                <a class="btn btn-secondary" href="login.html">Log in</a>
-                <a class="btn btn-source" href="https://github.com/chassbarker/ai-appointment-scheduler" target="_blank" rel="noopener noreferrer">View on GitHub<span class="visually-hidden"> (opens in a new tab)</span></a>
+    <main id="mainContent" class="landing-main" tabindex="-1">
+        <section class="hero">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <p class="eyebrow">AI-powered scheduling workspace</p>
+                    <h1>Plan your time with clarity and confidence.</h1>
+                    <p class="hero-description">Book, reschedule, and manage appointments through a secure conversational assistant or the familiar manual form. Everything stays organized in one dashboard.</p>
+                    <div class="button-row hero-actions" aria-label="Account actions">
+                        <a class="btn btn-primary" href="login.html">Get started</a>
+                        <a class="hero-source-link" href="https://github.com/chassbarker/ai-appointment-scheduler" target="_blank" rel="noopener noreferrer">View GitHub<span class="visually-hidden"> (opens in a new tab)</span></a>
+                    </div>
+                    <ul class="tech-badges" aria-label="Platform capabilities">
+                        <li>Conversational booking</li>
+                        <li>Secure authentication</li>
+                        <li>Private by design</li>
+                    </ul>
+                </div>
+                <aside class="hero-preview" aria-label="Appointment dashboard preview">
+                    <div class="preview-header">
+                        <div>
+                            <p class="preview-label">Your schedule</p>
+                            <h2>Today at a glance</h2>
+                        </div>
+                        <span class="preview-status">Preview</span>
+                    </div>
+                    <div class="preview-card preview-card-featured">
+                        <span class="preview-date"><strong>28</strong><small>JUL</small></span>
+                        <div>
+                            <p class="preview-kicker">Next appointment</p>
+                            <h3>Dental follow-up</h3>
+                            <p>2:00 PM · Confirmed</p>
+                        </div>
+                    </div>
+                    <div class="preview-card">
+                        <span class="preview-icon" aria-hidden="true">✦</span>
+                        <div>
+                            <h3>Scheduling assistant</h3>
+                            <p>Book, move, or cancel in a few short messages.</p>
+                        </div>
+                    </div>
+                    <div class="preview-security"><span aria-hidden="true">✓</span> Protected by Supabase authentication and Row Level Security</div>
+                </aside>
             </div>
         </section>
     </main>
 
-    <footer class="footer container"><p>&copy; 2026 Chassidy Barker. All rights reserved.</p></footer>
+    <footer class="footer"><div class="container footer-inner"><div><a class="footer-logo" href="index.html">AI Appointment Scheduler</a><p>Secure, accessible appointment management.</p></div><p>&copy; 2026 Chassidy Barker. All rights reserved.</p></div></footer>
 </body>
 </html>

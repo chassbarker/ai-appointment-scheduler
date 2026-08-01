@@ -317,8 +317,18 @@
     }
 
     async function refreshDashboard() {
-        if (window.appointmentsDashboard?.loadAppointments) {
-            await window.appointmentsDashboard.loadAppointments();
+        try {
+            if (window.appointmentsDashboard?.loadAppointments) {
+                await window.appointmentsDashboard.loadAppointments();
+            }
+        } catch (error) {
+            showStatus(`The appointment change was saved, but the dashboard could not refresh: ${error.message}`, true);
+        }
+    }
+
+    function requireAffectedAppointment(data) {
+        if (!Array.isArray(data) || data.length !== 1) {
+            throw new Error("The appointment no longer exists or is not available to this account.");
         }
     }
 
@@ -453,12 +463,14 @@
         setBusy(true, "Rescheduling appointment...");
         try {
             const session = await currentSession();
-            const { error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from("appointments")
                 .update({ date: state.fields.date, time: state.fields.time })
                 .eq("id", state.selectedAppointment.id)
-                .eq("user_id", session.user.id);
+                .eq("user_id", session.user.id)
+                .select("id");
             if (error) throw error;
+            requireAffectedAppointment(data);
             resetConversationState();
             addMessage("Appointment rescheduled.");
             await refreshDashboard();
@@ -476,12 +488,14 @@
         setBusy(true, "Cancelling appointment...");
         try {
             const session = await currentSession();
-            const { error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from("appointments")
                 .delete()
                 .eq("id", state.selectedAppointment.id)
-                .eq("user_id", session.user.id);
+                .eq("user_id", session.user.id)
+                .select("id");
             if (error) throw error;
+            requireAffectedAppointment(data);
             resetConversationState();
             addMessage("Appointment cancelled.");
             await refreshDashboard();
