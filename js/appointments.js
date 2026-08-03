@@ -145,14 +145,16 @@ function renderGroup(target, appointments, emptyMessage) {
         const isFuture = appointmentDate(appointment) > new Date();
 
         if (appointment.status === "scheduled") {
-            const completeButton = makeElement(
-                "button",
-                "Mark completed",
-                "btn btn-secondary btn-small"
-            );
-            completeButton.type = "button";
-            completeButton.addEventListener("click", () => markCompleted(appointment.id));
-            actions.append(completeButton);
+            if (!isFuture) {
+                const completeButton = makeElement(
+                    "button",
+                    "Mark completed",
+                    "btn btn-secondary btn-small"
+                );
+                completeButton.type = "button";
+                completeButton.addEventListener("click", () => markCompleted(appointment.id));
+                actions.append(completeButton);
+            }
 
             if (isFuture) {
                 const editButton = makeElement("button", "Edit", "btn btn-secondary btn-small");
