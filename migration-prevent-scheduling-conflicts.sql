@@ -255,6 +255,14 @@ declare
 begin
     new.updated_at := now();
 
+    if new.provider_id is null then
+        select id
+        into new.provider_id
+        from public.providers
+        where name = 'Primary Provider'
+          and active = true;
+    end if;
+
     if tg_op = 'INSERT' then
         new.created_at := now();
         new.cancelled_at := case when new.status = 'cancelled' then now() else null end;
