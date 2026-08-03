@@ -22,6 +22,7 @@
     const initialState = () => ({
         mode: "idle",
         fields: {},
+        providers: [],
         appointments: [],
         selectedAppointment: null
     });
@@ -245,7 +246,87 @@
     }
 
     function bookingSummary() {
-        return `I have you down for ${state.fields.type} on ${formatDate(state.fields.date)} at ${formatTime(state.fields.time)}. Should I book it?`;
+        return `I have you down for a ${state.fields.durationMinutes}-minute ${state.fields.type} appointment with ${state.fields.providerName} on ${formatDate(state.fields.date)} at ${formatTime(state.fields.time)}. Should I book it?`;
+    }
+
+    function schedulingErrorMessage(error) {
+        if (error?.code === "23P01") {
+            return "That provider is already booked during the selected time.";
+        }
+        return error?.message || "An unexpected scheduling error occurred.";
+    }
+
+    function renderProviderChoices() {
+        deactivateAppointmentChoices();
+        const label = "Which provider would you like?";
+        const message = addMessage(label);
+        const list = document.createElement("div");
+        list.className = "assistant-choice-list";
+        list.setAttribute("role", "group");
+        list.setAttribute("aria-label", label);
+
+        state.providers.forEach((provider, index) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "btn btn-source assistant-choice";
+            button.textContent = `${index + 1}. ${provider.name}`;
+            button.addEventListener("click", () => selectProvider(provider.id));
+            activeChoiceButtons.push(button);
+            list.append(button);
+        });
+
+        message.append(list);
+        scrollConversation();
+        list.querySelector("button")?.focus();
+    }
+
+    function selectProvider(id) {
+        const provider = state.providers.find((item) => item.id === id);
+        if (state.mode !== "booking-provider-select" || !provider) {
+            addMessage("Select one of the providers shown.");
+            focusInput();
+            return;
+        }
+
+        deactivateAppointmentChoices();
+        state.fields.providerId = provider.id;
+        state.fields.providerName = provider.name;
+        state.mode = "booking-fields";
+        addMessage(TYPE_PROMPT);
+        focusInput();
+    }
+
+    async function prepareBooking(initialText = "") {
+        resetConversationState();
+        setBusy(true, "Loading providers...");
+
+        try {
+            state.providers = await window.providerDirectoryPromise;
+            state.fields.durationMinutes = 30;
+            setBusy(false);
+
+            if (state.providers.length === 1) {
+                state.fields.providerId = state.providers[0].id;
+                state.fields.providerName = state.providers[0].name;
+                state.mode = "booking-fields";
+
+                if (initialText) collectBookingFields(initialText, true);
+                else {
+                    addMessage(TYPE_PROMPT);
+                    focusInput();
+                }
+                return;
+            }
+
+            state.mode = "booking-provider-select";
+            renderProviderChoices();
+        } catch (error) {
+            setBusy(false);
+            resetConversationState();
+            showStatus(`Unable to load providers: ${error.message}`, true);
+            addMessage("I could not load the available providers. Please try again.");
+            focusInput();
+        }
     }
 
     function validateAndStoreDateTime(text, fields) {
@@ -338,10 +419,12 @@
             const session = await currentSession();
             const appointment = {
                 user_id: session.user.id,
+                provider_id: state.fields.providerId,
                 name: state.fields.type,
                 type: state.fields.type,
                 date: state.fields.date,
                 time: state.fields.time,
+                duration_minutes: state.fields.durationMinutes,
                 notes: null,
                 status: "scheduled"
             };
@@ -354,8 +437,9 @@
             focusInput();
         } catch (error) {
             setBusy(false);
-            showStatus(`Unable to book: ${error.message}`, true);
-            addMessage("I could not book that appointment. Please try again.");
+            const message = schedulingErrorMessage(error);
+            showStatus(`Unable to book: ${message}`, true);
+            addMessage(`${message} Please choose another time or provider.`);
             focusInput();
         }
     }
@@ -373,7 +457,7 @@
             const button = document.createElement("button");
             button.type = "button";
             button.className = "btn btn-source assistant-choice";
-            button.textContent = `${index + 1}. ${appointment.type} — ${formatDate(appointment.date)} at ${formatTime(appointment.time)}`;
+            button.textContent = `${index + 1}. ${appointment.type} with ${appointment.providers?.name || "Provider"} — ${formatDate(appointment.date)} at ${formatTime(appointment.time)}`;
             button.addEventListener("click", () => selectAppointment(appointment.id, `${mode}-select`));
             activeChoiceButtons.push(button);
             list.append(button);
@@ -391,7 +475,7 @@
             const session = await currentSession();
             const { data, error } = await supabaseClient
                 .from("appointments")
-                .select("id, user_id, name, type, date, time, status")
+                .select("id, user_id, provider_id, name, type, date, time, duration_minutes, status, providers(name)")
                 .eq("user_id", session.user.id)
                 .eq("status", "scheduled")
                 .gte("date", todayStorage())
@@ -490,7 +574,7 @@
             const session = await currentSession();
             const { data, error } = await supabaseClient
                 .from("appointments")
-                .delete()
+                .update({ status: "cancelled" })
                 .eq("id", state.selectedAppointment.id)
                 .eq("user_id", session.user.id)
                 .select("id");
@@ -539,6 +623,17 @@
             return;
         }
 
+        if (state.mode === "booking-provider-select") {
+            const number = text.trim().match(/^(\d+)[.)]?$/);
+            const provider = number ? state.providers[Number(number[1]) - 1] : null;
+            if (provider) selectProvider(provider.id);
+            else {
+                addMessage("Select one of the providers shown.");
+                focusInput();
+            }
+            return;
+        }
+
         if (state.mode.endsWith("-select")) {
             const number = text.trim().match(/^(\d+)[.)]?$/);
             const appointment = number ? state.appointments[Number(number[1]) - 1] : null;
@@ -569,8 +664,7 @@
             return;
         }
         if (bookingIntent(text)) {
-            state.mode = "booking-fields";
-            collectBookingFields(text, true);
+            await prepareBooking(text);
             return;
         }
 
@@ -601,10 +695,7 @@
             showStatus("");
             const action = button.dataset.assistantAction;
             if (action === "book") {
-                resetConversationState();
-                state.mode = "booking-fields";
-                addMessage(TYPE_PROMPT);
-                focusInput();
+                await prepareBooking();
             } else {
                 await beginSelection(action);
             }
