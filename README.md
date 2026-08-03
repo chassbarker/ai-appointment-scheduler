@@ -1,5 +1,7 @@
 # AI Appointment Scheduler
 
+[![Automated Tests](https://github.com/chassbarker/ai-appointment-scheduler/actions/workflows/tests.yml/badge.svg)](https://github.com/chassbarker/ai-appointment-scheduler/actions/workflows/tests.yml)
+
 A responsive appointment-management application built with Supabase Authentication, PostgreSQL, HTML, CSS, and JavaScript.
 
 **Live demo:** [View the AI Appointment Scheduler](https://chassbarker.github.io/ai-appointment-scheduler/)
@@ -38,6 +40,7 @@ This is an actively developed portfolio project demonstrating secure authenticat
 - Node.js test runner
 - Git and GitHub
 - GitHub Pages
+- GitHub Actions for continuous integration
 
 ## Scheduling assistant architecture
 
@@ -81,13 +84,14 @@ No service-role keys, database passwords, or private API keys are included in th
 
 ## Testing
 
+GitHub Actions automatically runs the appointment-management and scheduling-assistant tests for pull requests targeting `main` and changes pushed to `main`.
 Run both automated test files from the project directory:
 
 ```powershell
 node --test tests/appointments.test.cjs tests/scheduling-assistant.test.cjs
 ```
 
-Current automated test result:
+Current automated test results:
 
 - 2 test files passed
 - 0 failures
@@ -123,6 +127,8 @@ Current automated test result:
 The application has been tested with multiple user accounts to verify registration, login, appointment creation, editing, completion, deletion, and user-data isolation.
 
 Testing identified and resolved an issue that prevented appointments from saving when the optional Notes field was blank. Additional browser, mobile, keyboard, and screen-reader testing will continue as the project develops.
+
+A GitHub Actions continuous integration workflow now runs both automated test files whenever a pull request targets `main` or changes are pushed to `main`. This helps identify regressions before new changes are merged or deployed.
 
 ## Accessibility
 
