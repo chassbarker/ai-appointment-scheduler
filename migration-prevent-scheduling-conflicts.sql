@@ -2,6 +2,9 @@ begin;
 
 create extension if not exists btree_gist;
 
+create schema if not exists private;
+revoke all on schema private from public, anon, authenticated;
+
 create table if not exists public.providers (
     id uuid primary key default gen_random_uuid(),
     name text not null unique check (char_length(name) between 1 and 100),
@@ -117,6 +120,13 @@ add column if not exists completed_at timestamptz;
 alter table public.appointments
 add column if not exists no_show_at timestamptz;
 
+alter table public.appointments
+add column if not exists updated_at timestamptz not null default now();
+
+update public.appointments
+set completed_at = coalesce(completed_at, now())
+where status = 'completed';
+
 update public.appointments
 set provider_id = (
     select id
@@ -226,11 +236,16 @@ using gist (
     tsrange(starts_at, ends_at, '[)')
 );
 
-create or replace function public.validate_appointment_schedule()
+drop trigger if exists validate_appointment_schedule_trigger
+on public.appointments;
+
+drop function if exists public.validate_appointment_schedule();
+
+create or replace function private.validate_appointment_schedule()
 returns trigger
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = ''
 as $$
 declare
     provider_timezone text;
@@ -238,25 +253,33 @@ declare
     local_end timestamp;
     current_provider_time timestamp;
 begin
-    if new.status = 'cancelled' then
-        if tg_op = 'INSERT'
-           or old.status is distinct from new.status then
-            new.cancelled_at = now();
-        end if;
+    new.updated_at := now();
+
+    if tg_op = 'INSERT' then
+        new.created_at := now();
+        new.cancelled_at := case when new.status = 'cancelled' then now() else null end;
+        new.completed_at := case when new.status = 'completed' then now() else null end;
+        new.no_show_at := case when new.status = 'no_show' then now() else null end;
+    else
+        new.created_at := old.created_at;
+        new.cancelled_at := case
+            when new.status = 'cancelled' then coalesce(old.cancelled_at, now())
+            else null
+        end;
+        new.completed_at := case
+            when new.status = 'completed' then coalesce(old.completed_at, now())
+            else null
+        end;
+        new.no_show_at := case
+            when new.status = 'no_show' then coalesce(old.no_show_at, now())
+            else null
+        end;
     end if;
 
-    if new.status = 'completed' then
-        if tg_op = 'INSERT'
-           or old.status is distinct from new.status then
-            new.completed_at = now();
-        end if;
-    end if;
-
-    if new.status = 'no_show' then
-        if tg_op = 'INSERT'
-           or old.status is distinct from new.status then
-            new.no_show_at = now();
-        end if;
+    if new.status = 'no_show' and (select auth.uid()) is not null then
+        raise exception using
+            errcode = 'P0001',
+            message = 'Only staff can mark an appointment as a no-show.';
     end if;
 
     if new.status <> 'scheduled' then
@@ -313,11 +336,8 @@ begin
         select 1
         from public.provider_time_off time_off
         where time_off.provider_id = new.provider_id
-          and tsrange(
-                time_off.starts_at,
-                time_off.ends_at,
-                '[)'
-              ) && tsrange(local_start, local_end, '[)')
+          and tsrange(time_off.starts_at, time_off.ends_at, '[)')
+              && tsrange(local_start, local_end, '[)')
     ) then
         raise exception using
             errcode = 'P0001',
@@ -328,13 +348,25 @@ begin
 end
 $$;
 
-drop trigger if exists validate_appointment_schedule_trigger
-on public.appointments;
+revoke all on function private.validate_appointment_schedule()
+from public, anon, authenticated;
 
 create trigger validate_appointment_schedule_trigger
 before insert or update
 on public.appointments
 for each row
-execute function public.validate_appointment_schedule();
+execute function private.validate_appointment_schedule();
+
+revoke insert, update, delete
+on public.providers, public.provider_availability, public.provider_time_off
+from anon, authenticated;
+
+grant select
+on public.providers, public.provider_availability
+to authenticated;
+
+revoke select
+on public.provider_time_off
+from anon, authenticated;
 
 commit;
