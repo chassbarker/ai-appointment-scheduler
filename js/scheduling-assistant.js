@@ -23,6 +23,7 @@
         mode: "idle",
         fields: {},
         providers: [],
+        pendingBookingText: "",
         appointments: [],
         selectedAppointment: null
     });
@@ -292,8 +293,14 @@
         state.fields.providerId = provider.id;
         state.fields.providerName = provider.name;
         state.mode = "booking-fields";
-        addMessage(TYPE_PROMPT);
-        focusInput();
+
+        const pendingText = state.pendingBookingText;
+        state.pendingBookingText = "";
+        if (pendingText) collectBookingFields(pendingText, true);
+        else {
+            addMessage(TYPE_PROMPT);
+            focusInput();
+        }
     }
 
     async function prepareBooking(initialText = "") {
@@ -318,6 +325,7 @@
                 return;
             }
 
+            state.pendingBookingText = initialText;
             state.mode = "booking-provider-select";
             renderProviderChoices();
         } catch (error) {
