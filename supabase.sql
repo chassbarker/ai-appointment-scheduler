@@ -213,6 +213,14 @@ check (
 );
 
 alter table public.appointments
+alter column date type date
+using date::date;
+
+alter table public.appointments
+alter column time type time
+using time::time;
+
+alter table public.appointments
 add column if not exists scheduled_range tsrange
 generated always as (
     tsrange(
