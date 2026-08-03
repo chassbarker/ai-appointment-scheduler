@@ -4,7 +4,7 @@ A responsive appointment-management application built with Supabase Authenticati
 
 **Live demo:** [View the AI Appointment Scheduler](https://chassbarker.github.io/ai-appointment-scheduler/)
 
-![AI Appointment Scheduler dashboard](images/ai-appointment-scheduler-dashboard.png) (images\ai-appointment-scheduler-dashboard.png)
+ ![AI Appointment Scheduler dashboard](images/ai-appointment-scheduler-dashboard.png)
 
 ## Project status
 
