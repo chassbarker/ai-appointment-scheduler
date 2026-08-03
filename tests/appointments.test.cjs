@@ -246,8 +246,8 @@ async function run() {
 
     const article = elements.upcomingAppointmentsList.children[0];
     const actions = article.children[1];
-    const editButton = actions.children[1];
-    const cancelButton = actions.children[2];
+    const editButton = actions.children[0];
+    const cancelButton = actions.children[1];
     await editButton.dispatch("click");
     assert.equal(elements.manualAppointmentSection.open, true, "editing should expand the appointment form");
     elements.date.value = futureDate(12);
