@@ -265,7 +265,10 @@ async function run() {
     await submit("Haircut");
     assert.match(messages().at(-1), /That type is not available/);
     await submit("Therapy tomorrow at 4 PM");
-    assert.match(messages().at(-1), /^I have you down for Therapy/);
+    assert.match(
+        messages().at(-1),
+        /^I have you down for a 30-minute Therapy appointment with Primary Provider/
+    );
     await submit("No thanks.");
     assert.equal(writes.inserts.length, 1, "declined booking must not insert");
 
@@ -275,7 +278,11 @@ async function run() {
     await submit("tomorrow");
     assert.equal(messages().at(-1), "What time would you like?");
     await submit("Medical at 4 PM");
-    assert.match(messages().at(-1), /^I have you down for Dental/, "confirmed fields must not be overwritten");
+    assert.match(
+        messages().at(-1),
+        /^I have you down for a 30-minute Dental appointment with Primary Provider/,
+        "confirmed fields must not be overwritten"
+    );
     await submit("no");
 
     await actionButtons[0].dispatch("click");
