@@ -123,19 +123,25 @@ function futureDate(days) {
 const existingAppointment = {
     id: "appointment-1",
     user_id: "user-1",
+    provider_id: "provider-1",
+    providers: { name: "Primary Provider" },
     name: "Dental",
     type: "Dental",
     date: futureDate(5),
     time: "10:00",
+    duration_minutes: 30,
     status: "scheduled"
 };
 const secondAppointment = {
     id: "appointment-2",
     user_id: "user-1",
+    provider_id: "provider-1",
+    providers: { name: "Primary Provider" },
     name: "Vision",
     type: "Vision",
     date: futureDate(7),
     time: "14:00",
+    duration_minutes: 30,
     status: "scheduled"
 };
 const writes = { inserts: [], updates: [], deletes: [] };
@@ -203,6 +209,9 @@ global.supabaseClient = {
 };
 global.window = {
     dashboardSessionPromise: Promise.resolve({ user: { id: "user-1" } }),
+    providerDirectoryPromise: Promise.resolve([
+        { id: "provider-1", name: "Primary Provider", timezone: "America/Chicago" }
+    ]),
     appointmentsDashboard: { async loadAppointments() {} }
 };
 
@@ -230,7 +239,7 @@ function latestChoices() {
 
 async function run() {
     await submit("Book dental tomorrow at 3 PM");
-    assert.match(messages().at(-1), /^I have you down for Dental on .+ at 3:00 PM\. Should I book it\?$/);
+    assert.match(messages().at(-1), /^I have you down for a 30-minute Dental appointment with Primary Provider on .+ at 3:00 PM\. Should I book it\?$/);
     assert.equal(writes.inserts.length, 0, "booking must wait for confirmation");
 
     await submit("Yes!");
@@ -238,17 +247,28 @@ async function run() {
     assert.deepEqual(
         {
             user_id: writes.inserts[0].user_id,
+            provider_id: writes.inserts[0].provider_id,
+            duration_minutes: writes.inserts[0].duration_minutes,
             type: writes.inserts[0].type,
             time: writes.inserts[0].time
         },
-        { user_id: "user-1", type: "Dental", time: "15:00" }
+        {
+            user_id: "user-1",
+            provider_id: "provider-1",
+            duration_minutes: 30,
+            type: "Dental",
+            time: "15:00"
+        }
     );
 
     await actionButtons[0].dispatch("click");
     await submit("Haircut");
     assert.match(messages().at(-1), /That type is not available/);
     await submit("Therapy tomorrow at 4 PM");
-    assert.match(messages().at(-1), /^I have you down for Therapy/);
+    assert.match(
+        messages().at(-1),
+        /^I have you down for a 30-minute Therapy appointment with Primary Provider/
+    );
     await submit("No thanks.");
     assert.equal(writes.inserts.length, 1, "declined booking must not insert");
 
@@ -258,7 +278,11 @@ async function run() {
     await submit("tomorrow");
     assert.equal(messages().at(-1), "What time would you like?");
     await submit("Medical at 4 PM");
-    assert.match(messages().at(-1), /^I have you down for Dental/, "confirmed fields must not be overwritten");
+    assert.match(
+        messages().at(-1),
+        /^I have you down for a 30-minute Dental appointment with Primary Provider/,
+        "confirmed fields must not be overwritten"
+    );
     await submit("no");
 
     await actionButtons[0].dispatch("click");
@@ -290,16 +314,21 @@ async function run() {
     assert.ok(cancellationChoices.every((button) => button.disabled), "choices must be disabled after selection");
     await cancellationChoices[1].dispatch("click");
     await submit("no");
-    assert.equal(writes.deletes.length, 0, "declined cancellation must not delete");
+    assert.equal(
+        writes.updates.filter((write) => write.values.status === "cancelled").length,
+        0,
+        "declined cancellation must not update the status"
+    );
 
     await actionButtons[2].dispatch("click");
     const confirmedCancellationChoices = latestChoices();
     await confirmedCancellationChoices[0].dispatch("click");
     await confirmedCancellationChoices[1].dispatch("click");
     await submit("yes");
-    assert.equal(writes.deletes.length, 1);
-    assert.ok(writes.deletes[0].filters.some(([field, value]) => field === "id" && value === "appointment-1"));
-    assert.ok(writes.deletes[0].filters.some(([field, value]) => field === "user_id" && value === "user-1"));
+    const confirmedCancellation = writes.updates.find((write) => write.values.status === "cancelled");
+    assert.ok(confirmedCancellation, "confirmed cancellation must update appointment status");
+    assert.ok(confirmedCancellation.filters.some(([field, value]) => field === "id" && value === "appointment-1"));
+    assert.ok(confirmedCancellation.filters.some(([field, value]) => field === "user_id" && value === "user-1"));
 
     await actionButtons[2].dispatch("click");
     const staleCancellationChoices = latestChoices();

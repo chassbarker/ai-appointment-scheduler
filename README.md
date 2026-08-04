@@ -17,6 +17,11 @@ This is an actively developed portfolio project demonstrating secure authenticat
 - Full-name account creation, email/password login, logout, and password recovery
 - Protected dashboard and personalized welcome message
 - Conversational assistant for booking, rescheduling, and cancelling appointments
+- Provider-aware scheduling with multiple-provider support
+- Weekly provider hours, lunch closures, time off, and time-zone configuration
+- Appointment durations with database-enforced overlap prevention
+- Two-hour advance notice and a 90-day booking window
+- Cancellation history with completed, cancelled, and no-show statuses
 - Multi-field appointment extraction with one-at-a-time follow-up prompts
 - Explicit appointment selection and confirmation before changes
 - Create, view, edit, complete, and delete appointments
@@ -66,17 +71,25 @@ Conversation content is rendered with DOM text nodes and `textContent`. User-ent
 
 This project uses a Supabase publishable key in the browser, as intended for public frontend applications. PostgreSQL Row Level Security policies restrict appointment operations to the authenticated user's own records.
 
+The scheduling database contains `providers`, `provider_availability`, `provider_time_off`, and `appointments`.
+
 The `appointments` table contains:
 
 - `id`
 - `user_id`
+- `provider_id`
 - `name`
 - `type`
 - `date`
 - `time`
+- `duration_minutes`
 - `notes`
 - `status`
+- `cancelled_at`
+- `completed_at`
+- `no_show_at`
 - `created_at`
+- `updated_at`
 
 Every database operation is restricted to rows whose `user_id` matches `auth.uid()`.
 
@@ -151,9 +164,10 @@ This statement describes the project's accessibility target and is not a guarant
 1. Create a Supabase project.
 2. Run `supabase.sql` in the Supabase SQL Editor to create the database structure.
 3. If the table already exists without completion status, run `migration-add-status.sql` once.
-4. In **Authentication > URL Configuration**, add the deployed website and password-reset URLs.
-5. Replace the project URL and publishable key at the top of `js/auth.js` if using a different Supabase project.
-6. Serve the project through a local web server or deploy it with GitHub Pages.
+4. For an existing project, run `migration-prevent-scheduling-conflicts.sql` once to add providers, availability, durations, status history, and overlap protection.
+5. In **Authentication > URL Configuration**, add the deployed website and password-reset URLs.
+6. Replace the project URL and publishable key at the top of `js/auth.js` if using a different Supabase project.
+7. Serve the project through a local web server or deploy it with GitHub Pages.
 
 ### Scheduling assistant setup
 
@@ -166,6 +180,7 @@ Service-role keys and other private credentials should never be added to browser
 ```text
 css/style.css                         Shared responsive styling
 js/auth.js                            Authentication and password recovery
+js/providers.js                       Active-provider loading and selection
 js/appointments.js                    CRUD, filters, validation, and safe rendering
 js/scheduling-assistant.js            Conversational scheduling state machine
 tests/appointments.test.cjs           Appointment interaction tests
@@ -177,12 +192,15 @@ dashboard.html                        Protected appointment dashboard
 404.html                              Custom GitHub Pages error page
 supabase.sql                          Complete database schema and RLS setup
 migration-add-status.sql              Status update for existing databases
+migration-prevent-scheduling-conflicts.sql
+                                       Provider availability and conflict migration
 ```
 
 ## Future improvements
 
 - Connect the assistant to an AI language model
-- Add real-time availability and scheduling-conflict detection
+- Add a staff dashboard for provider management and no-show actions
+- Generate selectable appointment slots before confirmation
 - Send appointment reminders
 - Add calendar integration
 - Create administrative scheduling tools

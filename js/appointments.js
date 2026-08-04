@@ -7,11 +7,20 @@ const appointmentMessage = document.getElementById("appointmentMessage");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
 const saveAppointmentBtn = document.getElementById("saveAppointmentBtn");
 const dateInput = document.getElementById("date");
+const providerSelect = document.getElementById("provider");
+const durationSelect = document.getElementById("duration");
 const searchInput = document.getElementById("appointmentSearch");
 const typeFilter = document.getElementById("typeFilter");
 const manualAppointmentSection = document.getElementById("manualAppointmentSection");
 const openManualFormBtn = document.getElementById("openManualFormBtn");
 let appointmentsCache = [];
+
+const STATUS_LABELS = Object.freeze({
+    scheduled: "Scheduled",
+    completed: "Completed",
+    cancelled: "Cancelled",
+    no_show: "No-show"
+});
 
 function todayString() {
     const now = new Date();
@@ -27,6 +36,18 @@ function showAppointmentMessage(message, isError = false) {
     if (isError) appointmentMessage.focus();
 }
 
+function schedulingErrorMessage(error) {
+    if (error?.code === "23P01") {
+        return "That provider is already booked during the selected time. Choose another provider or time.";
+    }
+
+    if (error?.code === "P0001" && error.message) {
+        return error.message;
+    }
+
+    return error?.message || "An unexpected scheduling error occurred.";
+}
+
 function requireAffectedAppointment(data) {
     if (!Array.isArray(data) || data.length !== 1) {
         throw new Error("The appointment no longer exists or is not available to this account.");
@@ -40,7 +61,20 @@ function appointmentDate(appointment) {
 function formatAppointmentDate(date, time) {
     const value = new Date(`${date}T${time}`);
     if (Number.isNaN(value.getTime())) return `${date} at ${time}`;
-    return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(value);
+    return new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short"
+    }).format(value);
+}
+
+function formatDuration(minutes) {
+    if (minutes === 60) return "1 hour";
+    if (minutes === 90) return "1 hour 30 minutes";
+    return `${minutes} minutes`;
+}
+
+function providerName(appointment) {
+    return appointment.providers?.name || "Provider unavailable";
 }
 
 function getSelectedTime() {
@@ -69,6 +103,11 @@ function makeElement(tag, text, className) {
     return element;
 }
 
+function appendStatusBadge(target, status) {
+    if (status === "scheduled") return;
+    target.append(makeElement("span", STATUS_LABELS[status] || status, "status-badge"));
+}
+
 function renderGroup(target, appointments, emptyMessage) {
     target.replaceChildren();
     if (!appointments.length) {
@@ -77,31 +116,58 @@ function renderGroup(target, appointments, emptyMessage) {
     }
 
     appointments.forEach((appointment) => {
-        const article = makeElement("article", undefined, `appointment-item${appointment.status === "completed" ? " is-completed" : ""}`);
+        const article = makeElement(
+            "article",
+            undefined,
+            `appointment-item${appointment.status !== "scheduled" ? " is-completed" : ""}`
+        );
         const content = makeElement("div", undefined, "appointment-content");
         const headingRow = makeElement("div", undefined, "appointment-title-row");
         headingRow.append(makeElement("h4", appointment.name));
-        if (appointment.status === "completed") headingRow.append(makeElement("span", "Completed", "status-badge"));
-        content.append(headingRow, makeElement("p", appointment.type, "appointment-type"), makeElement("p", formatAppointmentDate(appointment.date, appointment.time), "appointment-date"));
-        if (appointment.notes) content.append(makeElement("p", appointment.notes, "appointment-notes"));
+        appendStatusBadge(headingRow, appointment.status);
+
+        content.append(
+            headingRow,
+            makeElement("p", appointment.type, "appointment-type"),
+            makeElement("p", `Provider: ${providerName(appointment)}`, "appointment-provider"),
+            makeElement(
+                "p",
+                `${formatAppointmentDate(appointment.date, appointment.time)} · ${formatDuration(appointment.duration_minutes)}`,
+                "appointment-date"
+            )
+        );
+
+        if (appointment.notes) {
+            content.append(makeElement("p", appointment.notes, "appointment-notes"));
+        }
 
         const actions = makeElement("div", undefined, "appointment-actions");
-        if (appointment.status !== "completed") {
-            const completeButton = makeElement("button", "Mark completed", "btn btn-secondary btn-small");
-            completeButton.type = "button";
-            completeButton.addEventListener("click", () => markCompleted(appointment.id));
-            actions.append(completeButton);
+        const isFuture = appointmentDate(appointment) > new Date();
+
+        if (appointment.status === "scheduled") {
+            if (!isFuture) {
+                const completeButton = makeElement(
+                    "button",
+                    "Mark completed",
+                    "btn btn-secondary btn-small"
+                );
+                completeButton.type = "button";
+                completeButton.addEventListener("click", () => markCompleted(appointment.id));
+                actions.append(completeButton);
+            }
+
+            if (isFuture) {
+                const editButton = makeElement("button", "Edit", "btn btn-secondary btn-small");
+                editButton.type = "button";
+                editButton.addEventListener("click", () => beginEdit(appointment.id));
+
+                const cancelButton = makeElement("button", "Cancel", "btn btn-danger btn-small");
+                cancelButton.type = "button";
+                cancelButton.addEventListener("click", () => cancelAppointment(appointment.id));
+                actions.append(editButton, cancelButton);
+            }
         }
-        const deleteButton = makeElement("button", "Delete", "btn btn-danger btn-small");
-        deleteButton.type = "button";
-        deleteButton.addEventListener("click", () => deleteAppointment(appointment.id));
-        if (appointment.status !== "completed" && appointmentDate(appointment) >= new Date()) {
-            const editButton = makeElement("button", "Edit", "btn btn-secondary btn-small");
-            editButton.type = "button";
-            editButton.addEventListener("click", () => beginEdit(appointment.id));
-            actions.append(editButton);
-        }
-        actions.append(deleteButton);
+
         article.append(content, actions);
         target.append(article);
     });
@@ -111,34 +177,59 @@ function displayAppointments() {
     const search = searchInput.value.trim().toLowerCase();
     const selectedType = typeFilter.value;
     const filtered = appointmentsCache.filter((appointment) => {
-        const text = `${appointment.name} ${appointment.type} ${appointment.notes || ""}`.toLowerCase();
-        return (!search || text.includes(search)) && (!selectedType || appointment.type === selectedType);
+        const text = `${appointment.name} ${appointment.type} ${providerName(appointment)} ${appointment.notes || ""}`.toLowerCase();
+        return (!search || text.includes(search))
+            && (!selectedType || appointment.type === selectedType);
     });
+
     const now = new Date();
-    const upcoming = filtered.filter((item) => item.status !== "completed" && appointmentDate(item) >= now);
-    const past = filtered.filter((item) => item.status === "completed" || appointmentDate(item) < now).sort((a, b) => appointmentDate(b) - appointmentDate(a));
+    const upcoming = filtered.filter((item) =>
+        item.status === "scheduled" && appointmentDate(item) >= now
+    );
+    const history = filtered
+        .filter((item) => item.status !== "scheduled" || appointmentDate(item) < now)
+        .sort((a, b) => appointmentDate(b) - appointmentDate(a));
+
     renderGroup(upcomingList, upcoming, "No upcoming appointments match your filters.");
-    renderGroup(pastList, past, "No past or completed appointments match your filters.");
+    renderGroup(pastList, history, "No appointment history matches your filters.");
 }
 
 async function loadAppointments() {
     const session = await window.dashboardSessionPromise;
     if (!session) return;
+
     upcomingList.replaceChildren(makeElement("p", "Loading appointments..."));
+
     try {
-        const { data, error } = await supabaseClient.from("appointments").select("id, user_id, name, type, date, time, notes, status, created_at").eq("user_id", session.user.id).order("date", { ascending: true }).order("time", { ascending: true });
+        await window.providerDirectoryPromise;
+        const { data, error } = await supabaseClient
+            .from("appointments")
+            .select("id, user_id, provider_id, name, type, date, time, duration_minutes, notes, status, created_at, cancelled_at, completed_at, no_show_at, providers(name)")
+            .eq("user_id", session.user.id)
+            .order("date", { ascending: true })
+            .order("time", { ascending: true });
+
         if (error) throw error;
         appointmentsCache = data || [];
         displayAppointments();
     } catch (error) {
-        upcomingList.replaceChildren(makeElement("p", `Unable to load appointments: ${error.message}`, "message-error"));
+        upcomingList.replaceChildren(
+            makeElement("p", `Unable to load appointments: ${error.message}`, "message-error")
+        );
     }
+}
+
+function selectOnlyProvider() {
+    const availableOptions = Array.from(providerSelect.options).filter((option) => option.value);
+    if (availableOptions.length === 1) providerSelect.value = availableOptions[0].value;
 }
 
 function resetAppointmentForm() {
     appointmentForm.reset();
     dateInput.min = todayString();
     document.getElementById("appointmentId").value = "";
+    durationSelect.value = "30";
+    selectOnlyProvider();
     saveAppointmentBtn.textContent = "Save appointment";
     cancelEditBtn.hidden = true;
 }
@@ -146,9 +237,12 @@ function resetAppointmentForm() {
 function beginEdit(id) {
     const appointment = appointmentsCache.find((item) => item.id === id);
     if (!appointment) return;
+
     document.getElementById("appointmentId").value = appointment.id;
     document.getElementById("name").value = appointment.name;
     document.getElementById("type").value = appointment.type;
+    providerSelect.value = appointment.provider_id;
+    durationSelect.value = String(appointment.duration_minutes);
     dateInput.min = appointment.date < todayString() ? appointment.date : todayString();
     dateInput.value = appointment.date;
     setSelectedTime(appointment.time);
@@ -164,29 +258,59 @@ appointmentForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const session = await window.dashboardSessionPromise;
     if (!session) return;
+
     const id = document.getElementById("appointmentId").value;
     const selectedTime = getSelectedTime();
     const selectedDate = dateInput.value;
+
+    if (!providerSelect.value) {
+        providerSelect.setAttribute("aria-invalid", "true");
+        showAppointmentMessage("Select an appointment provider.", true);
+        providerSelect.focus();
+        return;
+    }
+
     if (new Date(`${selectedDate}T${selectedTime}`) <= new Date()) {
         dateInput.setAttribute("aria-invalid", "true");
         showAppointmentMessage("Choose a future date and time.", true);
         return;
     }
+
+    providerSelect.removeAttribute("aria-invalid");
     dateInput.removeAttribute("aria-invalid");
-    const appointment = { user_id: session.user.id, name: document.getElementById("name").value.trim(), type: document.getElementById("type").value, date: selectedDate, time: selectedTime, notes: document.getElementById("notes").value.trim() || null };
+
+    const appointment = {
+        user_id: session.user.id,
+        provider_id: providerSelect.value,
+        name: document.getElementById("name").value.trim(),
+        type: document.getElementById("type").value,
+        date: selectedDate,
+        time: selectedTime,
+        duration_minutes: Number(durationSelect.value),
+        notes: document.getElementById("notes").value.trim() || null,
+        status: "scheduled"
+    };
+
     saveAppointmentBtn.disabled = true;
     showAppointmentMessage(id ? "Updating appointment..." : "Saving appointment...");
+
     try {
         const result = id
-            ? await supabaseClient.from("appointments").update(appointment).eq("id", id).eq("user_id", session.user.id).select("id")
+            ? await supabaseClient
+                .from("appointments")
+                .update(appointment)
+                .eq("id", id)
+                .eq("user_id", session.user.id)
+                .select("id")
             : await supabaseClient.from("appointments").insert(appointment);
+
         if (result.error) throw result.error;
         if (id) requireAffectedAppointment(result.data);
         resetAppointmentForm();
         showAppointmentMessage(id ? "Appointment updated." : "Appointment saved.");
         await loadAppointments();
     } catch (error) {
-        showAppointmentMessage(`Unable to save appointment: ${error.message}`, true);
+        showAppointmentMessage(`Unable to save appointment: ${schedulingErrorMessage(error)}`, true);
     } finally {
         saveAppointmentBtn.disabled = false;
     }
@@ -195,8 +319,15 @@ appointmentForm.addEventListener("submit", async (event) => {
 async function markCompleted(id) {
     const session = await window.dashboardSessionPromise;
     if (!session) return;
+
     try {
-        const { data, error } = await supabaseClient.from("appointments").update({ status: "completed" }).eq("id", id).eq("user_id", session.user.id).select("id");
+        const { data, error } = await supabaseClient
+            .from("appointments")
+            .update({ status: "completed" })
+            .eq("id", id)
+            .eq("user_id", session.user.id)
+            .select("id");
+
         if (error) throw error;
         requireAffectedAppointment(data);
         showAppointmentMessage("Appointment marked completed.");
@@ -206,18 +337,26 @@ async function markCompleted(id) {
     }
 }
 
-async function deleteAppointment(id) {
-    if (!window.confirm("Permanently delete this appointment?")) return;
+async function cancelAppointment(id) {
+    if (!window.confirm("Cancel this appointment? It will remain in appointment history.")) return;
+
     const session = await window.dashboardSessionPromise;
     if (!session) return;
+
     try {
-        const { data, error } = await supabaseClient.from("appointments").delete().eq("id", id).eq("user_id", session.user.id).select("id");
+        const { data, error } = await supabaseClient
+            .from("appointments")
+            .update({ status: "cancelled" })
+            .eq("id", id)
+            .eq("user_id", session.user.id)
+            .select("id");
+
         if (error) throw error;
         requireAffectedAppointment(data);
-        showAppointmentMessage("Appointment deleted.");
+        showAppointmentMessage("Appointment cancelled.");
         await loadAppointments();
     } catch (error) {
-        showAppointmentMessage(`Unable to delete appointment: ${error.message}`, true);
+        showAppointmentMessage(`Unable to cancel appointment: ${error.message}`, true);
     }
 }
 

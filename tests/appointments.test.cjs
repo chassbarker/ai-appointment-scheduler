@@ -35,6 +35,10 @@ class FakeElement {
         this.min = "";
     }
 
+    get options() {
+        return this.children;
+    }
+
     append(...children) {
         this.children.push(...children);
     }
@@ -90,6 +94,8 @@ const elements = {
     cancelEditBtn: new FakeElement("button"),
     saveAppointmentBtn: new FakeElement("button"),
     date: new FakeElement("input"),
+    provider: new FakeElement("select"),
+    duration: new FakeElement("select"),
     appointmentSearch: new FakeElement("input"),
     typeFilter: new FakeElement("select"),
     appointmentId: new FakeElement("input"),
@@ -118,10 +124,13 @@ global.document = {
 const existingAppointment = {
     id: "appointment-1",
     user_id: "user-1",
+    provider_id: "provider-1",
+    providers: { name: "Primary Provider" },
     name: "Dental checkup",
     type: "Dental",
     date: futureDate(5),
     time: "10:00",
+    duration_minutes: 30,
     notes: null,
     status: "scheduled",
     created_at: new Date().toISOString()
@@ -196,6 +205,9 @@ global.supabaseClient = {
 };
 global.window = {
     dashboardSessionPromise: Promise.resolve({ user: { id: "user-1" } }),
+    providerDirectoryPromise: Promise.resolve([
+        { id: "provider-1", name: "Primary Provider", timezone: "America/Chicago" }
+    ]),
     confirm() {
         return true;
     }
@@ -205,6 +217,8 @@ const scriptPath = path.join(__dirname, "..", "js", "appointments.js");
 vm.runInThisContext(fs.readFileSync(scriptPath, "utf8"), { filename: scriptPath });
 
 async function run() {
+    elements.provider.value = "provider-1";
+    elements.duration.value = "30";
     await Promise.resolve();
     await Promise.resolve();
     assert.equal(elements.upcomingAppointmentsList.children.length, 1, "initial load should render the appointment");
@@ -224,14 +238,16 @@ async function run() {
     await elements.appointmentForm.dispatch("submit");
     assert.equal(writes.inserts.length, 1);
     assert.equal(writes.inserts[0].user_id, "user-1");
+    assert.equal(writes.inserts[0].provider_id, "provider-1");
+    assert.equal(writes.inserts[0].duration_minutes, 30);
     assert.equal(writes.inserts[0].time, "15:30");
     assert.equal(writes.inserts[0].notes, null);
     assert.equal(elements.saveAppointmentBtn.disabled, false, "save button must be restored");
 
     const article = elements.upcomingAppointmentsList.children[0];
     const actions = article.children[1];
-    const editButton = actions.children[1];
-    const deleteButton = actions.children[2];
+    const editButton = actions.children[0];
+    const cancelButton = actions.children[1];
     await editButton.dispatch("click");
     assert.equal(elements.manualAppointmentSection.open, true, "editing should expand the appointment form");
     elements.date.value = futureDate(12);
@@ -243,9 +259,11 @@ async function run() {
     assert.match(elements.appointmentMessage.textContent, /no longer exists or is not available/);
     assert.equal(elements.saveAppointmentBtn.disabled, false, "save button must be restored after failure");
 
-    await deleteButton.dispatch("click");
-    assert.equal(writes.deletes.length, 1);
-    assert.match(elements.appointmentMessage.textContent, /Unable to delete appointment/);
+    await cancelButton.dispatch("click");
+    assert.equal(writes.updates.length, 2);
+    assert.equal(writes.updates[1].values.status, "cancelled");
+    assert.ok(writes.updates[1].filters.some(([field, value]) => field === "id" && value === "appointment-1"));
+    assert.match(elements.appointmentMessage.textContent, /Unable to cancel appointment/);
 
     mutationAffectsRow = true;
     selectThrows = true;
