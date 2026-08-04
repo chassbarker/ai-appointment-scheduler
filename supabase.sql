@@ -212,13 +212,35 @@ check (
     )
 );
 
-alter table public.appointments
-alter column date type date
-using date::date;
+do $
+begin
+    if exists (
+        select 1
+        from information_schema.columns
+        where table_schema = 'public'
+          and table_name = 'appointments'
+          and column_name = 'date'
+          and data_type = 'text'
+    ) then
+        alter table public.appointments
+        alter column date type date
+        using date::date;
+    end if;
 
-alter table public.appointments
-alter column time type time
-using time::time;
+    if exists (
+        select 1
+        from information_schema.columns
+        where table_schema = 'public'
+          and table_name = 'appointments'
+          and column_name = 'time'
+          and data_type = 'text'
+    ) then
+        alter table public.appointments
+        alter column time type time
+        using time::time;
+    end if;
+end
+$;
 
 alter table public.appointments
 add column if not exists scheduled_range tsrange
