@@ -194,7 +194,42 @@ supabase.sql                          Complete database schema and RLS setup
 migration-add-status.sql              Status update for existing databases
 migration-prevent-scheduling-conflicts.sql
                                        Provider availability and conflict migration
-```
+## Development Setup
+
+AI Appointment Scheduler v2 is being developed on a dedicated feature branch using the AWS serverless development toolchain.
+
+### Prerequisites
+
+- AWS CLI
+- AWS SAM CLI
+- Node.js
+- Git
+
+### Baseline Validation
+
+Before v2 development began:
+
+- The existing appointment and scheduling-assistant tests passed.
+- The repository had a clean working tree.
+- Version 1 was preserved with the `v1.0.0` release tag.
+- Development was moved to the `feature/v2-aws-ai` branch to keep `main` stable.
+
+### Prerequisites
+
+- AWS CLI
+- AWS SAM CLI
+- Node.js
+- Git
+
+### Baseline Validation
+
+Before v2 development began:
+
+- The existing appointment and scheduling-assistant tests passed.
+- The repository had a clean working tree.
+- Version 1 was preserved with the `v1.0.0` release tag.
+- Development was moved to the `feature/v2-aws-ai` branch to keep `main` stable.
+
 
 ## Future improvements
 
