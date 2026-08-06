@@ -1,0 +1,15 @@
+{
+  "name": "ai-appointment-scheduler-backend",
+  "version": "1.0.0",
+  "description": "AWS Lambda scheduling API for the AI Appointment Scheduler",
+  "main": "app.mjs",
+  "author": "Chassidy Barker",
+  "license": "MIT",
+  "scripts": {
+    "test": "mocha tests/unit/"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "mocha": "^10.2.0"
+  }
+}
