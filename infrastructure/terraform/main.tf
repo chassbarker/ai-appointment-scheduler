@@ -50,9 +50,9 @@ resource "aws_lambda_function" "scheduling_assistant" {
   filename         = data.archive_file.scheduling_assistant.output_path
   source_code_hash = data.archive_file.scheduling_assistant.output_base64sha256
 
-  memory_size                    = 128
-  timeout                        = 10
-  reserved_concurrent_executions = 2
+  memory_size = 128
+  timeout     = 10
+
 
   depends_on = [
     aws_iam_role_policy_attachment.lambda_logging,
