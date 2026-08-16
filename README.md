@@ -2,21 +2,24 @@
 
 [![Automated Tests](https://github.com/chassbarker/ai-appointment-scheduler/actions/workflows/tests.yml/badge.svg)](https://github.com/chassbarker/ai-appointment-scheduler/actions/workflows/tests.yml)
 
-A responsive appointment-management application built with Supabase Authentication, PostgreSQL, HTML, CSS, and JavaScript.
+A responsive appointment-management application that combines a browser-based frontend, Supabase authentication and PostgreSQL, and an AWS serverless scheduling layer.
 
 **Live demo:** [View the AI Appointment Scheduler](https://chassbarker.github.io/ai-appointment-scheduler/)
 
- ![AI Appointment Scheduler dashboard](images/ai-appointment-scheduler-dashboard.png)
+![AI Appointment Scheduler dashboard](images/ai-appointment-scheduler-dashboard.png)
 
 ## Project status
 
-This is an actively developed portfolio project demonstrating secure authentication, appointment management, conversational scheduling, responsive design, accessibility, automated testing, and Supabase integration.
+Version 2 expands the original Supabase appointment scheduler with AWS serverless infrastructure. The GitHub Pages frontend can send scheduling requests to an Amazon API Gateway HTTP API backed by AWS Lambda while the existing authenticated appointment workflow continues to use Supabase.
+
+The project demonstrates frontend development, secure authentication, relational database design, serverless AWS integration, Infrastructure as Code with Terraform, automated testing, accessibility, and Git/GitHub workflows.
 
 ## Features
 
 - Full-name account creation, email/password login, logout, and password recovery
 - Protected dashboard and personalized welcome message
 - Conversational assistant for booking, rescheduling, and cancelling appointments
+- AWS API Gateway and Lambda integration for scheduling requests
 - Provider-aware scheduling with multiple-provider support
 - Weekly provider hours, lunch closures, time off, and time-zone configuration
 - Appointment durations with database-enforced overlap prevention
@@ -34,22 +37,120 @@ This is an actively developed portfolio project demonstrating secure authenticat
 - Accessible conversation log, focus management, and live loading/error status
 - Safe DOM rendering for user-entered details
 - Custom GitHub Pages 404 page
+- Automated tests and GitHub Actions continuous integration
 
 ## Technology
 
-- Supabase Authentication and Data API
-- PostgreSQL with Row Level Security
+### Frontend
+
 - HTML5
 - CSS3
 - Vanilla JavaScript
-- Node.js test runner
-- Git and GitHub
 - GitHub Pages
-- GitHub Actions for continuous integration
 
-## Scheduling assistant architecture
+### Backend and data
 
-The protected dashboard loads `js/scheduling-assistant.js` after the authentication and appointment modules. Scheduling messages are sent to an AWS API Gateway HTTP endpoint backed by an AWS Lambda function. After the AWS service validates and acknowledges the request, the existing deterministic client-side conversation flow handles booking, rescheduling, and cancellation through Supabase.
+- Supabase Authentication
+- Supabase Data API
+- PostgreSQL
+- PostgreSQL Row Level Security
+
+### AWS and Infrastructure as Code
+
+- Amazon API Gateway HTTP API
+- AWS Lambda
+- AWS IAM
+- Amazon CloudWatch Logs
+- Terraform
+- AWS SAM
+
+### Development and testing
+
+- Node.js
+- Node.js test runner
+- Mocha and Chai for the AWS SAM backend test
+- Git and GitHub
+- GitHub Actions
+
+## Architecture
+
+```text
+User Browser
+    |
+    v
+GitHub Pages Frontend
+    |
+    | scheduling request
+    v
+Amazon API Gateway HTTP API
+    |
+    | POST /schedule
+    v
+AWS Lambda Scheduling Assistant
+    |
+    | validated response
+    v
+Frontend Conversation Flow
+    |
+    v
+Supabase Authentication + PostgreSQL
+    |
+    v
+User Appointment Data protected by RLS
+```
+
+The protected dashboard loads `js/scheduling-assistant.js` after the authentication and appointment modules. Scheduling messages are sent to an Amazon API Gateway HTTP endpoint backed by an AWS Lambda function. The Lambda function validates and acknowledges the scheduling request, and the existing deterministic client-side flow continues the booking, rescheduling, or cancellation process through Supabase.
+
+This design allowed the original application to remain functional while adding a real AWS serverless layer as part of V2.
+
+## AWS V2 architecture
+
+### API Gateway
+
+Terraform provisions an Amazon API Gateway v2 HTTP API with a `POST /schedule` route. The route uses an AWS proxy integration to invoke the scheduling Lambda function.
+
+The API includes CORS configuration so the GitHub Pages frontend can communicate with the AWS endpoint.
+
+### AWS Lambda
+
+The scheduling assistant Lambda is implemented with Node.js 22 and ARM64 architecture. It receives scheduling requests from API Gateway and returns the service response to the frontend.
+
+The Lambda source is located in:
+
+```text
+aws/lambda/scheduling-assistant/
+```
+
+### IAM and logging
+
+Terraform provisions a dedicated Lambda execution role and attaches the AWS-managed basic execution policy required for CloudWatch logging.
+
+A CloudWatch log group is also managed by Terraform with a 14-day retention period.
+
+### Terraform
+
+The production-style AWS infrastructure is defined in:
+
+```text
+infrastructure/terraform/
+```
+
+Terraform manages:
+
+- Lambda packaging and deployment configuration
+- Lambda execution role
+- IAM policy attachment
+- CloudWatch log group
+- API Gateway HTTP API
+- Lambda proxy integration
+- `POST /schedule` route
+- Default auto-deploy API stage
+- API throttling settings
+- Lambda permission for API Gateway invocation
+
+The Terraform configuration is separated into provider, variable, output, version, and main infrastructure files so the environment can be reproduced consistently.
+
+## Scheduling assistant flow
 
 ### Booking
 
@@ -59,7 +160,7 @@ The assistant recognizes booking intent and extracts an allowed appointment type
 
 Rescheduling and cancellation requests query the authenticated user's upcoming appointments and display an explicit appointment-selection list. The assistant does not infer which appointment to change from descriptive text alone.
 
-Rescheduling validates the replacement date and time before requesting confirmation. Cancellation also requires confirmation before an appointment is deleted.
+Rescheduling validates the replacement date and time before requesting confirmation. Cancellation also requires confirmation before an appointment is removed.
 
 ### Data protection
 
@@ -98,18 +199,27 @@ No service-role keys, database passwords, or private API keys are included in th
 ## Testing
 
 GitHub Actions automatically runs the appointment-management and scheduling-assistant tests for pull requests targeting `main` and changes pushed to `main`.
-Run both automated test files from the project directory:
+
+Run the frontend application tests from the project directory:
 
 ```powershell
 node --test tests/appointments.test.cjs tests/scheduling-assistant.test.cjs
 ```
 
-Current automated test results:
+The AWS Lambda scheduling assistant also includes its own test file in the Lambda source directory.
 
-- 2 test files passed
-- 0 failures
-- Appointment-management interactions passed
-- Scheduling-assistant interactions passed
+Testing has covered:
+
+- Account registration and login
+- Appointment creation, editing, completion, and deletion
+- User-data isolation
+- Conversational booking
+- Rescheduling and cancellation
+- Date and time validation
+- Appointment selection and confirmation
+- AWS scheduling request handling
+- API integration behavior
+- Error and loading states
 
 ### Manual testing checklist
 
@@ -121,27 +231,17 @@ Current automated test results:
 - Verify the assistant asks for only one missing field at a time
 - Try an unsupported appointment type
 - Try an impossible date, past date or time, and malformed time
-- Verify the assistant summarizes the booking details before saving
+- Verify the assistant summarizes booking details before saving
 - Decline a booking and confirm that no appointment is inserted
 - Start rescheduling and verify upcoming appointments are displayed
 - Verify an appointment is not inferred from typed descriptive text
-- Select an appointment, enter a new date and time, and decline the change
-- Repeat the rescheduling process, confirm it, and verify only the selected appointment changes
-- Start cancellation, select an appointment, and decline the cancellation
-- Repeat the cancellation process, confirm it, and verify the selected appointment is deleted
+- Select an appointment, enter a new date and time, and confirm or decline the change
+- Start cancellation, select an appointment, and confirm or decline cancellation
 - Test assistant loading and Supabase error states
 - Verify search and appointment-type filters
 - Verify past appointments move to the history section
 - Test two accounts to confirm user-data isolation
 - Test keyboard navigation and mobile layouts
-
-## Testing notes
-
-The application has been tested with multiple user accounts to verify registration, login, appointment creation, editing, completion, deletion, and user-data isolation.
-
-Testing identified and resolved an issue that prevented appointments from saving when the optional Notes field was blank. Additional browser, mobile, keyboard, and screen-reader testing will continue as the project develops.
-
-A GitHub Actions continuous integration workflow now runs both automated test files whenever a pull request targets `main` or changes are pushed to `main`. This helps identify regressions before new changes are merged or deployed.
 
 ## Accessibility
 
@@ -161,111 +261,89 @@ This statement describes the project's accessibility target and is not a guarant
 
 ## Setup
 
+### Supabase
+
 1. Create a Supabase project.
 2. Run `supabase.sql` in the Supabase SQL Editor to create the database structure.
 3. If the table already exists without completion status, run `migration-add-status.sql` once.
 4. For an existing project, run `migration-prevent-scheduling-conflicts.sql` once to add providers, availability, durations, status history, and overlap protection.
 5. In **Authentication > URL Configuration**, add the deployed website and password-reset URLs.
 6. Replace the project URL and publishable key at the top of `js/auth.js` if using a different Supabase project.
-7. Serve the project through a local web server or deploy it with GitHub Pages.
 
-### Scheduling assistant setup
+### Frontend
 
-No additional environment variables or database migration are required for the assistant. It reuses the Supabase URL and publishable key from `js/auth.js`, the authenticated dashboard session, and the existing `appointments` table.
+Serve the project through a local web server or deploy it with GitHub Pages.
 
-Service-role keys and other private credentials should never be added to browser files.
+### AWS development prerequisites
+
+- AWS CLI
+- AWS SAM CLI
+- Terraform
+- Node.js
+- Git
+
+### Terraform configuration
+
+Terraform files are located in:
+
+```text
+infrastructure/terraform/
+```
+
+Use `terraform.tfvars.example` as the starting point for environment-specific configuration. Do not commit credentials or private secrets.
+
+Typical Terraform workflow:
+
+```powershell
+terraform init
+terraform fmt -check
+terraform validate
+terraform plan
+terraform apply
+```
 
 ## Project structure
 
 ```text
-css/style.css                         Shared responsive styling
-js/auth.js                            Authentication and password recovery
-js/providers.js                       Active-provider loading and selection
-js/appointments.js                    CRUD, filters, validation, and safe rendering
-js/scheduling-assistant.js            Conversational scheduling state machine
-tests/appointments.test.cjs           Appointment interaction tests
-tests/scheduling-assistant.test.cjs   Scheduling assistant interaction tests
-index.html                            Landing page
-login.html                            Login and account creation
-reset-password.html                   Password reset page
-dashboard.html                        Protected appointment dashboard
-404.html                              Custom GitHub Pages error page
-supabase.sql                          Complete database schema and RLS setup
-migration-add-status.sql              Status update for existing databases
+.github/workflows/                     GitHub Actions workflows
+aws/lambda/scheduling-assistant/       AWS Lambda scheduling assistant
+aws-v2-backend/                        AWS SAM backend implementation
+css/style.css                          Shared responsive styling
+images/                                Project screenshots and images
+infrastructure/terraform/              Terraform AWS infrastructure
+js/auth.js                             Authentication and password recovery
+js/providers.js                        Active-provider loading and selection
+js/appointments.js                     CRUD, filters, validation, and safe rendering
+js/scheduling-assistant.js             Conversational scheduling state machine
+tests/appointments.test.cjs            Appointment interaction tests
+tests/scheduling-assistant.test.cjs    Scheduling assistant interaction tests
+index.html                             Landing page
+login.html                             Login and account creation
+reset-password.html                    Password reset page
+dashboard.html                         Protected appointment dashboard
+404.html                               Custom GitHub Pages error page
+supabase.sql                           Complete database schema and RLS setup
+migration-add-status.sql               Status update for existing databases
 migration-prevent-scheduling-conflicts.sql
                                        Provider availability and conflict migration
-## Development Setup
+```
 
-AI Appointment Scheduler v2 is being developed on a dedicated feature branch using the AWS serverless development toolchain.
+## V2 progress
 
-### Prerequisites
+Version 1 was preserved with the `v1.0.0` release tag before V2 development began.
 
-- AWS CLI
-- AWS SAM CLI
-- Node.js
-- Git
+V2 work includes:
 
-### Baseline Validation
-
-Before v2 development began:
-
-- The existing appointment and scheduling-assistant tests passed.
-- The repository had a clean working tree.
-- Version 1 was preserved with the `v1.0.0` release tag.
-- Development was moved to the `feature/v2-aws-ai` branch to keep `main` stable.
-
-### Prerequisites
-
-- AWS CLI
-- AWS SAM CLI
-- Node.js
-- Git
-
-### Baseline Validation
-
-Before v2 development began:
-
-- The existing appointment and scheduling-assistant tests passed.
-- The repository had a clean working tree.
-- Version 1 was preserved with the `v1.0.0` release tag.
-- Development was moved to the `feature/v2-aws-ai` branch to keep `main` stable.
-
-
-
-## Development Setup
-
-AI Appointment Scheduler v2 is being developed on a dedicated feature branch using the AWS serverless development toolchain.
-
-### Prerequisites
-
-- AWS CLI
-- AWS SAM CLI
-- Node.js
-- Git
-
-### Baseline Validation
-
-Before v2 development began:
-
-- The existing appointment and scheduling-assistant tests passed.
-- The repository had a clean working tree.
-- Version 1 was preserved with the `v1.0.0` release tag.
-- Development was moved to the `feature/v2-aws-ai` branch to keep `main` stable.
-
-### AWS v2 Backend Progress
-
-The first AWS serverless API checkpoint is complete:
-
-- Initialized an AWS SAM backend using Node.js 22
-- Replaced the generated Hello World function with `SchedulingFunction`
-- Added a `GET /appointments` API Gateway route
-- Created an initial Lambda response with an empty appointments collection
-- Added a Mocha and Chai unit test for the scheduling function
-- Confirmed the unit test passes
-- Validated the SAM template
-- Confirmed the application builds successfully with the SAM CLI
-
-The AWS backend is currently being developed and tested locally. No AWS resources have been deployed.
+- AWS serverless scheduling backend
+- API Gateway integration
+- AWS Lambda scheduling assistant
+- Terraform Infrastructure as Code
+- IAM and CloudWatch configuration
+- Frontend-to-AWS scheduling requests
+- Automated Lambda tests
+- Existing frontend and scheduling tests
+- GitHub Actions continuous integration
+- Updated AWS architecture documentation
 
 ## Future improvements
 
