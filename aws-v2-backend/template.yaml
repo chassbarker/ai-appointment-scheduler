@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  aws-v2-backend
+
+  AWS serverless backend for the AI Appointment Scheduler
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  SchedulingFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: scheduling/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        SchedulingApi:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /appointments
+            Method: get
+
+Outputs:
+  SchedulingApi:
+    Description: "API Gateway endpoint URL for the appointments API"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/appointments"
+
+  SchedulingFunctionArn:
+    Description: "Scheduling Lambda function ARN"
+    Value: !GetAtt SchedulingFunction.Arn
+
+  SchedulingFunctionIamRole:
+    Description: "Implicit IAM role created for the scheduling function"
+    Value: !GetAtt SchedulingFunctionRole.Arn

@@ -231,6 +231,42 @@ Before v2 development began:
 - Development was moved to the `feature/v2-aws-ai` branch to keep `main` stable.
 
 
+
+## Development Setup
+
+AI Appointment Scheduler v2 is being developed on a dedicated feature branch using the AWS serverless development toolchain.
+
+### Prerequisites
+
+- AWS CLI
+- AWS SAM CLI
+- Node.js
+- Git
+
+### Baseline Validation
+
+Before v2 development began:
+
+- The existing appointment and scheduling-assistant tests passed.
+- The repository had a clean working tree.
+- Version 1 was preserved with the `v1.0.0` release tag.
+- Development was moved to the `feature/v2-aws-ai` branch to keep `main` stable.
+
+### AWS v2 Backend Progress
+
+The first AWS serverless API checkpoint is complete:
+
+- Initialized an AWS SAM backend using Node.js 22
+- Replaced the generated Hello World function with `SchedulingFunction`
+- Added a `GET /appointments` API Gateway route
+- Created an initial Lambda response with an empty appointments collection
+- Added a Mocha and Chai unit test for the scheduling function
+- Confirmed the unit test passes
+- Validated the SAM template
+- Confirmed the application builds successfully with the SAM CLI
+
+The AWS backend is currently being developed and tested locally. No AWS resources have been deployed.
+
 ## Future improvements
 
 - Connect the assistant to an AI language model

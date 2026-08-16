@@ -13,6 +13,8 @@
         "Other"
     ];
     const TYPE_PROMPT = `What appointment type? Choose: ${ALLOWED_TYPES.join(", ")}.`;
+    const SCHEDULING_API_ENDPOINT =
+        "https://f09wmfbef0.execute-api.us-east-1.amazonaws.com/schedule";
     const conversation = document.getElementById("assistantConversation");
     const form = document.getElementById("assistantForm");
     const input = document.getElementById("assistantInput");
@@ -399,6 +401,24 @@
         focusInput();
     }
 
+    async function sendToSchedulingApi(message) {
+        const response = await window.fetch(SCHEDULING_API_ENDPOINT, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({ message })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(data.error || "The scheduling service is unavailable.");
+        }
+
+        return data;
+    }
+
     async function currentSession() {
         const session = await window.dashboardSessionPromise;
         if (!session) throw new Error("Your session has expired. Log in again.");
@@ -688,9 +708,13 @@
         input.value = "";
         showStatus("");
         addMessage(text, "user");
-        try {
+          try {
+            setBusy(true, "Connecting to scheduling service...");
+            await sendToSchedulingApi(text);
+            setBusy(false);
             await handleMessage(text);
         } catch (error) {
+            setBusy(false);
             showStatus(`Something went wrong: ${error.message}`, true);
             addMessage("I could not complete that request. Please try again.");
             focusInput();
