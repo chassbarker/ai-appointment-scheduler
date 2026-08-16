@@ -49,7 +49,7 @@ This is an actively developed portfolio project demonstrating secure authenticat
 
 ## Scheduling assistant architecture
 
-The protected dashboard loads `js/scheduling-assistant.js` after the authentication and appointment modules. The assistant uses a deterministic client-side conversation state machine. It does not currently call an external AI service or require a private API key.
+The protected dashboard loads `js/scheduling-assistant.js` after the authentication and appointment modules. Scheduling messages are sent to an AWS API Gateway HTTP endpoint backed by an AWS Lambda function. After the AWS service validates and acknowledges the request, the existing deterministic client-side conversation flow handles booking, rescheduling, and cancellation through Supabase.
 
 ### Booking
 
