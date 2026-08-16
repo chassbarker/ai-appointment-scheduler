@@ -1,22 +1,21 @@
-import { expect } from 'chai';
+import test from 'node:test';
+import assert from 'node:assert/strict';
 import { lambdaHandler } from '../../app.mjs';
 
-describe('Scheduling function', function () {
-  it('returns an empty appointments list successfully', async function () {
-    const result = await lambdaHandler();
+test('returns an empty appointments list successfully', async () => {
+  const result = await lambdaHandler();
 
-    expect(result).to.be.an('object');
-    expect(result.statusCode).to.equal(200);
-    expect(result.headers).to.deep.equal({
-      'Content-Type': 'application/json'
-    });
-    expect(result.body).to.be.a('string');
+  assert.equal(typeof result, 'object');
+  assert.equal(result.statusCode, 200);
+  assert.deepEqual(result.headers, {
+    'Content-Type': 'application/json'
+  });
+  assert.equal(typeof result.body, 'string');
 
-    const response = JSON.parse(result.body);
+  const response = JSON.parse(result.body);
 
-    expect(response).to.deep.equal({
-      message: 'Appointments retrieved successfully',
-      appointments: []
-    });
+  assert.deepEqual(response, {
+    message: 'Appointments retrieved successfully',
+    appointments: []
   });
 });
