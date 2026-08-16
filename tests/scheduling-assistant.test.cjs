@@ -100,9 +100,9 @@ const actionButtons = ["book", "reschedule", "cancel"].map((action) => {
 
 global.document = {
     activeElement: null,
-    getElementById(id) {
-        return elements[id] || null;
-    },
+getElementById(id) {
+    return elements[id] || null;
+},
     querySelectorAll(selector) {
         return selector === "[data-assistant-action]" ? actionButtons : [];
     },
@@ -215,6 +215,22 @@ global.window = {
     appointmentsDashboard: { async loadAppointments() {} }
 };
 
+const schedulingApiRequests = [];
+
+global.window.fetch = async (url, options = {}) => {
+    schedulingApiRequests.push({ url, options });
+
+    return {
+        ok: true,
+        async json() {
+            return {
+                success: true,
+                message: "Scheduling request received"
+            };
+        }
+    };
+};
+
 const scriptPath = path.join(__dirname, "..", "js", "scheduling-assistant.js");
 vm.runInThisContext(fs.readFileSync(scriptPath, "utf8"), { filename: scriptPath });
 
@@ -239,6 +255,30 @@ function latestChoices() {
 
 async function run() {
     await submit("Book dental tomorrow at 3 PM");
+
+    assert.equal(
+        schedulingApiRequests.length,
+        1,
+        "the scheduling message must be sent to AWS"
+    );
+
+    const firstApiRequest = schedulingApiRequests[0];
+
+    assert.equal(
+        firstApiRequest.url,
+        "https://f09wmfbef0.execute-api.us-east-1.amazonaws.com/schedule"
+    );
+    assert.equal(firstApiRequest.options.method, "POST");
+    assert.equal(
+        firstApiRequest.options.headers["content-type"],
+        "application/json"
+    );
+    assert.deepEqual(
+        JSON.parse(firstApiRequest.options.body),
+        { message: "Book dental tomorrow at 3 PM" }
+    );
+
+    // Keep all the existing test code below this point.
     assert.match(messages().at(-1), /^I have you down for a 30-minute Dental appointment with Primary Provider on .+ at 3:00 PM\. Should I book it\?$/);
     assert.equal(writes.inserts.length, 0, "booking must wait for confirmation");
 
