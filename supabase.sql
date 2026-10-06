@@ -212,7 +212,7 @@ check (
     )
 );
 
-do $
+do $$
 begin
     if exists (
         select 1
@@ -240,7 +240,7 @@ begin
         using time::time;
     end if;
 end
-$;
+$$;
 
 alter table public.appointments
 add column if not exists scheduled_range tsrange
