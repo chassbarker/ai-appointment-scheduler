@@ -6,7 +6,6 @@ invoke this script. AWS Bedrock requests may incur charges.
 """
 import argparse
 import json
-import os
 import re
 from pathlib import Path
 
@@ -31,10 +30,10 @@ def validate_failure(data):
     # Fail closed for obvious sensitive values. This is NOT a comprehensive
     # secret scanner: review all text manually before sending it to AWS.
     sensitive = [
-        r"(?i)(password|secret|api[_ -]?key|authorization|bearer|cookie|token)\\s*[:=]",
-        r"(?i)\\b[\\w.+-]+@[\\w.-]+\\.[a-z]{2,}\\b",
-        r"(?i)https?://\\S+",
-        r"(?i)\\b(?:AKIA|ASIA)[A-Z0-9]{16}\\b",
+        r"(?i)(password|secret|api[_ -]?key|authorization|bearer|cookie|token)\s*[:=]",
+        r"(?i)\b[\w.+-]+@[\w.-]+\.[a-z]{2,}\b",
+        r"(?i)https?://\S+",
+        r"(?i)\b(?:AKIA|ASIA)[A-Z0-9]{16}\b",
     ]
     if any(re.search(pattern, combined) for pattern in sensitive):
         raise ValueError("Possible sensitive data detected; remove it before analysis")
