@@ -245,6 +245,35 @@ Use an installed Microsoft Edge browser; Selenium Manager can provision the matc
 
 **Verification evidence:** [Five passing local Selenium checks, environment, troubleshooting, and test limitations](docs/selenium-test-results.md).
 
+### Authenticated Selenium end-to-end test
+
+I expanded the browser testing with an authenticated Python Selenium WebDriver test that exercises a complete appointment workflow against the deployed application using Microsoft Edge and a dedicated Supabase test account.
+
+The automated test:
+
+1. Signs in to the test account.
+2. Creates a uniquely named synthetic appointment.
+3. Verifies the appointment appears in the upcoming list.
+4. Edits the appointment and verifies the updated name.
+5. Cancels the appointment and verifies it appears in history.
+
+The test uses explicit waits, assertions, and best-effort cleanup if a run fails. I also added a local recording mode with short pauses and best-effort masking of test account information for a screen-recorded demonstration.
+
+**Local verification:** One authenticated end-to-end test passed in 25.935 seconds with recording mode enabled (October 2026).
+
+To run the authenticated test from the repository root:
+
+```powershell
+python -m pip install selenium
+$env:SCHEDULER_TEST_EMAIL = Read-Host "Enter dedicated test account email"
+$securePassword = Read-Host "Enter test account password" -AsSecureString
+$env:SCHEDULER_TEST_PASSWORD = [System.Net.NetworkCredential]::new("", $securePassword).Password
+$env:SCHEDULER_RECORDING_MODE = "1"  # Optional; adds demo pauses and best-effort masking
+python -m unittest discover -s tests -p "test_selenium_e2e.py" -v
+```
+
+The authenticated test runs locally; it is not part of the GitHub Actions workflow. Use a dedicated test account, never commit credentials, and review recordings for sensitive information before publishing.
+
 ### Manual testing checklist
 
 - Create and confirm an account
