@@ -247,6 +247,8 @@ Use an installed Microsoft Edge browser; Selenium Manager can provision the matc
 
 ### Authenticated Selenium end-to-end test
 
+**Video demo:** [Watch the Selenium end-to-end test automation demo on YouTube](https://youtu.be/46lEfgx2a-s).
+
 I expanded the browser testing with an authenticated Python Selenium WebDriver test that exercises a complete appointment workflow against the deployed application using Microsoft Edge and a dedicated Supabase test account.
 
 The automated test:
