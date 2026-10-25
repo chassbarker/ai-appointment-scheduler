@@ -93,7 +93,6 @@ class AppointmentWorkflow(unittest.TestCase):
     def cancel_named(self, name):
         row = self.appointment_row(name)
         self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", row)
-        self.driver.switch_to.alert  # alert is handled after click
         row.find_element(By.XPATH, ".//button[normalize-space()='Cancel']").click()
         self.wait.until(EC.alert_is_present()).accept()
         self.wait.until(lambda d: "Appointment cancelled." in d.find_element(By.ID, "appointmentMessage").text)
