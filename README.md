@@ -68,6 +68,7 @@ The project demonstrates frontend development, secure authentication, relational
 
 - Node.js
 - Node.js test runner
+- Python 3.13 and Selenium WebDriver (Microsoft Edge browser smoke tests)
 - Mocha and Chai for the AWS SAM backend test
 - Git and GitHub
 - GitHub Actions
@@ -221,6 +222,27 @@ Testing has covered:
 - API integration behavior
 - Error and loading states
 
+### Python Selenium browser tests
+
+A separate `test_selenium.py` script performs five browser checks against the deployed GitHub Pages site using Python, Selenium WebDriver, and Microsoft Edge:
+
+1. Confirm the application homepage loads with the expected title.
+2. Confirm the **Log in** link is visible.
+3. Follow the link and verify navigation to the login page.
+4. Confirm the email and password fields are visible.
+5. Verify an empty login form fails native HTML required-field validation and does not navigate away.
+
+All five checks passed in a local Microsoft Edge run in October 2026. The fifth check uses the browser's form validation API (`checkValidity` and `requestSubmit`); it does **not** assert that the submit button was physically clicked. No credentials are entered and no appointments are created or changed.
+
+From the repository root, install the dependency and run the tests:
+
+```powershell
+python -m pip install selenium
+python test_selenium.py
+```
+
+Use an installed Microsoft Edge browser; Selenium Manager can provision the matching WebDriver. These browser checks currently run **locally** and are not part of the Node.js GitHub Actions workflow above. Selenium test output can be captured with `python test_selenium.py > selenium_test_results.txt`.
+
 ### Manual testing checklist
 
 - Create and confirm an account
@@ -317,6 +339,7 @@ js/appointments.js                     CRUD, filters, validation, and safe rende
 js/scheduling-assistant.js             Conversational scheduling state machine
 tests/appointments.test.cjs            Appointment interaction tests
 tests/scheduling-assistant.test.cjs    Scheduling assistant interaction tests
+test_selenium.py                       Python Selenium browser smoke tests
 index.html                             Landing page
 login.html                             Login and account creation
 reset-password.html                    Password reset page
