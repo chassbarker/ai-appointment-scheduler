@@ -1,0 +1,7 @@
+{
+  "test_name": "test_create_edit_cancel",
+  "exception_type": "TimeoutException",
+  "failure_summary": "The expected appointment row was not visible before the explicit wait expired.",
+  "expected": "A synthetic appointment appears in the upcoming list.",
+  "actual": "The upcoming list stayed empty during the wait."
+}
