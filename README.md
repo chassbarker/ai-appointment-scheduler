@@ -68,7 +68,7 @@ The project demonstrates frontend development, secure authentication, relational
 
 - Node.js
 - Node.js test runner
-- Python 3.13 and Selenium WebDriver (Microsoft Edge browser smoke tests)
+- Python 3.13 and Selenium WebDriver (Microsoft Edge browser smoke tests and authenticated end-to-end appointment workflow testing)
 - Mocha and Chai for the AWS SAM backend test
 - Git and GitHub
 - GitHub Actions
