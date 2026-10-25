@@ -243,6 +243,8 @@ python test_selenium.py
 
 Use an installed Microsoft Edge browser; Selenium Manager can provision the matching WebDriver. These browser checks currently run **locally** and are not part of the Node.js GitHub Actions workflow above. Selenium test output can be captured with `python test_selenium.py > selenium_test_results.txt`.
 
+**Verification evidence:** [Five passing local Selenium checks, environment, troubleshooting, and test limitations](docs/selenium-test-results.md).
+
 ### Manual testing checklist
 
 - Create and confirm an account
