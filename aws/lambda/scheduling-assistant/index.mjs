@@ -41,6 +41,12 @@ export async function handler(event = {}) {
     });
   }
 
+  if (message.length > 2000) {
+    return createResponse(400, {
+      error: "Scheduling message is too long",
+    });
+  }
+
   return createResponse(200, {
     success: true,
     message: "Scheduling request received",
