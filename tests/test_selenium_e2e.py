@@ -66,22 +66,61 @@ class AppointmentWorkflow(unittest.TestCase):
         self.element("#openManualFormBtn").click()
         self.wait.until(lambda d: d.find_element(By.ID, "manualAppointmentSection").get_attribute("open") is not None)
 
-    def fill_form(self, name):
+    def fill_form(self, name, provider_index=0, days_ahead=14, hour=10):
         self.element("#name").clear()
         self.driver.find_element(By.ID, "name").send_keys(name)
         Select(self.driver.find_element(By.ID, "type")).select_by_value("Personal")
-        self.wait.until(lambda d: len([o for o in Select(d.find_element(By.ID, "provider")).options if o.get_attribute("value")]) > 0)
+        self.wait.until(lambda d: len([
+            o for o in Select(d.find_element(By.ID, "provider")).options
+            if o.get_attribute("value")
+        ]) > 0)
         provider = Select(self.driver.find_element(By.ID, "provider"))
-        provider.select_by_index(next(i for i, o in enumerate(provider.options) if o.get_attribute("value")))
-        # Try future weekdays, respecting the app's 90-day window. Provider
-        # availability may vary; a rejected booking fails clearly.
-        target = date.today() + timedelta(days=14)
+        valid_indices = [
+            i for i, option in enumerate(provider.options)
+            if option.get_attribute("value")
+        ]
+        provider.select_by_index(valid_indices[provider_index])
+        target = date.today() + timedelta(days=days_ahead)
         while target.weekday() >= 5:
             target += timedelta(days=1)
         self.driver.find_element(By.ID, "date").send_keys(target.isoformat())
-        Select(self.driver.find_element(By.ID, "timeHour")).select_by_value("10")
+        Select(self.driver.find_element(By.ID, "timeHour")).select_by_value(str(hour))
         Select(self.driver.find_element(By.ID, "timeMinute")).select_by_value("00")
         Select(self.driver.find_element(By.ID, "timePeriod")).select_by_value("AM")
+
+    def create_in_available_slot(self):
+        """Retry only known availability conflicts, never unrelated application errors."""
+        self.wait.until(lambda d: len([
+            o for o in Select(d.find_element(By.ID, "provider")).options
+            if o.get_attribute("value")
+        ]) > 0)
+        provider_count = len([
+            o for o in Select(self.driver.find_element(By.ID, "provider")).options
+            if o.get_attribute("value")
+        ])
+        attempts = 0
+        for days_ahead in (14, 21, 28):
+            for provider_index in range(provider_count):
+                for hour in (10, 11, 9):
+                    attempts += 1
+                    self.fill_form(self.name, provider_index, days_ahead, hour)
+                    self.driver.find_element(By.ID, "saveAppointmentBtn").click()
+                    self.wait.until(lambda d:
+                        "Appointment saved." in d.find_element(By.ID, "appointmentMessage").text
+                        or "Unable to save appointment:" in d.find_element(By.ID, "appointmentMessage").text)
+                    message = self.driver.find_element(By.ID, "appointmentMessage").text
+                    if "Appointment saved." in message:
+                        self.created = True
+                        return
+                    # Only retry availability-related rejections. Fail on other defects.
+                    availability_errors = (
+                        "already booked", "outside", "availability",
+                        "working hours", "not available", "time off",
+                        "lunch", "advance notice",
+                    )
+                    if not any(phrase in message.lower() for phrase in availability_errors):
+                        self.fail(f"Unexpected appointment creation error: {message}")
+        self.fail(f"No valid appointment slot found after {attempts} attempts; check provider availability")
 
     def save(self, expected_message):
         self.driver.find_element(By.ID, "saveAppointmentBtn").click()
@@ -106,9 +145,7 @@ class AppointmentWorkflow(unittest.TestCase):
     def test_create_edit_cancel(self):
         self.login()
         self.open_form()
-        self.fill_form(self.name)
-        self.save("Appointment saved.")
-        self.created = True
+        self.create_in_available_slot()
         row = self.appointment_row(self.name)
         row.find_element(By.XPATH, ".//button[normalize-space()='Edit']").click()
         self.wait.until(lambda d: d.find_element(By.ID, "appointmentId").get_attribute("value"))
