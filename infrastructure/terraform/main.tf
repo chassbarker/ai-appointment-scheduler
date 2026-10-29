@@ -67,7 +67,7 @@ resource "aws_apigatewayv2_api" "scheduling_assistant" {
   cors_configuration {
     allow_headers = ["content-type"]
     allow_methods = ["POST", "OPTIONS"]
-    allow_origins = ["*"]
+    allow_origins = ["https://chassbarker.github.io"]
   }
 }
 

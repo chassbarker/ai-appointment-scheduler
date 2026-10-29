@@ -70,3 +70,23 @@ test("rejects unsupported HTTP methods", async () => {
     error: "Method not allowed",
   });
 });
+
+
+test("rejects oversized scheduling messages", async () => {
+  const response = await handler({
+    requestContext: { http: { method: "POST" } },
+    body: JSON.stringify({ message: "a".repeat(2001) }),
+  });
+  assert.equal(response.statusCode, 400);
+  assert.deepEqual(JSON.parse(response.body), {
+    error: "Scheduling message is too long",
+  });
+});
+
+test("accepts scheduling messages at the size limit", async () => {
+  const response = await handler({
+    requestContext: { http: { method: "POST" } },
+    body: JSON.stringify({ message: "a".repeat(2000) }),
+  });
+  assert.equal(response.statusCode, 200);
+});
